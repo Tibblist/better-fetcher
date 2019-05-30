@@ -19,4 +19,5 @@ This function is called with returned data from either the cache or the network.
 
 # FAQ:
 **Q**: I am getting an error when doing get().then()?
+
 **A**: This is because this implementation of fetch doesn't use a promise since it needs to be able to run the callback function multiple times if/when newer data comes in.
