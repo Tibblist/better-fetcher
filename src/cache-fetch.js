@@ -18,7 +18,7 @@ callback:
 The function to be called with data as it is received. Expect this function to be called multiple times given that it will likely first be called with cache data and then called with updated network data. 
 Do not rely on it being called twice however given that it won't be called a second time if network data returns first or cache data does not exist
 */
-exports.Get = function(url, options, callback) {
+exports.get = function(url, options, callback) {
 	var networkDataReceived = false;
 	var cacheData = {};
 	// fetch fresh data
