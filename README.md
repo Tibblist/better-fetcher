@@ -7,7 +7,7 @@ cache-fetch is a library designed to make it easier to use a service worker with
   - Implements an axios like get() function.
 
 # Documentation:
-## Get(url, options, callback):
+## get(url, options, callback):
 The get function is designed to be similar to axios.get() except that it doesn't return a promise and instead uses a third parameter as a callback function.
 ### url:
 The url destination to be fetched from. This will also be used as the key to check the cache for a cached response.
