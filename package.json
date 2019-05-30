@@ -1,0 +1,24 @@
+{
+  "name": "cache-fetch",
+  "version": "1.0.0",
+  "description": "A project to implement advanced service worker functionality like pulling from cache and then recieving network data and updating the display to show newer data into a wrapper with standard fetch calls.",
+  "main": "cache-fetch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tibblist/cache-fetch.git"
+  },
+  "keywords": [
+    "service-worker",
+    "fetch",
+    "api"
+  ],
+  "author": "Ethan Tibbetts",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Tibblist/cache-fetch/issues"
+  },
+  "homepage": "https://github.com/Tibblist/cache-fetch#readme"
+}
