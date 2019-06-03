@@ -1,24 +1,30 @@
 {
-  "name": "cache-fetch",
+  "name": "better-fetch",
   "version": "1.0.0",
   "description": "A project to implement advanced service worker functionality like pulling from cache and then recieving network data and updating the display to show newer data into a wrapper with standard fetch calls.",
-  "main": "cache-fetch.js",
+  "main": "better-fetch.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tibblist/cache-fetch.git"
+    "url": "git+https://github.com/Tibblist/better-fetch.git"
   },
   "keywords": [
     "service-worker",
     "fetch",
-    "api"
+    "api",
+    "cache"
   ],
   "author": "Ethan Tibbetts",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/Tibblist/cache-fetch/issues"
+    "url": "https://github.com/Tibblist/better-fetch/issues"
   },
-  "homepage": "https://github.com/Tibblist/cache-fetch#readme"
+  "homepage": "https://github.com/Tibblist/better-fetch#readme",
+  "devDependencies": {
+    "fetch-mock": "^7.3.3",
+    "jest": "^24.8.0",
+    "node-fetch": "^2.6.0"
+  }
 }

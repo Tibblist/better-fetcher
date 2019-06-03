@@ -1,6 +1,6 @@
-# cache-fetch
+# better-fetch
 
-cache-fetch is a library designed to make it easier to use a service worker with fetch and implement a cache-first then network strategy. Essentially it provides the means to both immediately use cache available data for requests and then swap that data out on the fly once the network request returns with data the is more up to date.
+better-fetch is a library designed to make it easier to use a service worker with fetch and implement a cache-first then network strategy. Essentially it provides the means to both immediately use cache available data for requests and then swap that data out on the fly once the network request returns with data the is more up to date.
 
 # Features:
 
