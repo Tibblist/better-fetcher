@@ -11,9 +11,8 @@ describe('Testing get()', () => {
 	});
 	it('Simple caching check', (done) => {
 		isDone = [ false, false ];
-		cacheFetch.get(
-			SIMPLE_URL,
-			function(data) {
+		betterFetch.get(SIMPLE_URL, { useCache: true }, function(response) {
+			response.json().then(function(data) {
 				if (!isDone[0]) {
 					expect(data.title).toBe('Old lorem ipsum');
 					expect(data.thing).toBeTruthy();
@@ -24,56 +23,61 @@ describe('Testing get()', () => {
 					isDone[1] = true;
 					if (checkIfDone(isDone)) done();
 				}
-			},
-			SIMPLE_OPTIONS
-		);
+			});
+		});
 	});
 
-	it('Simple get request', (done) => {
-		cacheFetch.get(
-			'https://jsonplaceholder.typicode.com/users/1',
-			function(data) {
+	it('Simple get request', () => {
+		return betterFetch
+			.get('https://jsonplaceholder.typicode.com/users/1', SIMPLE_OPTIONS)
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(data) {
 				expect(data.name).toBe('Leanne Graham');
 				expect(data.address.geo.lat).toBe('-37.3159');
-				done();
-			},
-			SIMPLE_OPTIONS
-		);
+			});
 	});
 
 	it('Custom cache handler', (done) => {
 		var isDone = [ false, false ];
-		cacheFetch.get(
+		betterFetch.get(
 			SIMPLE_URL,
-			function(data) {
-				isDone[1] = true;
-				expect(data.title).toBe('delectus aut autem');
-				expect(data.thing).toBeUndefined();
-				if (checkIfDone(isDone)) done();
-			},
 			{
-				handleCachedData: function(data) {
+				handleCachedResponse: function(response) {
 					isDone[0] = true;
-					expect(data.title).toBe('Old lorem ipsum');
-					expect(data.thing).toBeTruthy();
+					response.json().then(function(data) {
+						expect(data.title).toBe('Old lorem ipsum');
+						expect(data.thing).toBeTruthy();
+						if (checkIfDone(isDone)) done();
+					});
+				},
+				useCache: true
+			},
+			function(response) {
+				isDone[1] = true;
+				response.json().then(function(data) {
+					expect(data.title).toBe('delectus aut autem');
+					expect(data.thing).toBeUndefined();
 					if (checkIfDone(isDone)) done();
-				}
+				});
 			}
 		);
 	});
 
 	it('Simple error status test', (done) => {
-		cacheFetch.get(
+		betterFetch.get(
 			'https://httpstat.us/400',
-			function(data) {
-                expect(data).toBeUndefined();
-			},
 			{
 				handleError: function(err) {
-                    expect(err).toBeTruthy();
-                    expect(err.toString()).toBe("Error: Bad Request")
+					expect(err).toBeTruthy();
+					expect(err.statusText).toBe('Bad Request');
+					expect(err.status).toBe(400);
 					done();
 				}
+			},
+			function(data) {
+				expect(data).toBeUndefined();
 			}
 		);
 	});

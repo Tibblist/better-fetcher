@@ -1,7 +1,7 @@
 var exports = (module.exports = {});
 var cacheName = '';
 var defaultTimeout = 5000;
-
+var credentials = false;
 //FOR TESTING ONLY
 var fetch;
 var caches;
@@ -28,93 +28,91 @@ exports.getDefaultTimeOut = function() {
 	return defaultTimeout;
 };
 
+exports.setDefaultCredentialPolicy = function(mode) {
+	credentialPolicy = mode;
+};
+
+exports.getDefaultCredentialPolicy = function() {
+	return credentialPolicy;
+};
+
 /*
 url:
 Set to the destination that you want to fetch data from.
 options:
 matchAll - Set flag true to match all responses in the cache instead of first hit
 dataType - Types include: "json", "blob", "formData", "arrayBuffer", "text", "raw"
-parameters - The init object to be used with the fetch call. See [Here]() for documentation
 init - Pass through init object to fetch call manually.
 handleError - function called if there is an error with the request.
 timeout - timeout (in ms) to set on the api call.
-handleCachedData - Manually specify a function to be used only for returned cached data.
-handleNetworkData - Manually specify a function to be used only for returned network data.
+handleCachedResponse - Manually specify a function to be used only for returned cached data.
+handleNetworkResponse - Manually specify a function to be used only for returned network data.
+useCache - Flag to check cache and return 
 callback:
 The function to be called with data as it is received. Expect this function to be called multiple times given that it will likely first be called with cache data and then called with updated network data. 
 Do not rely on it being called twice however given that it won't be called a second time if network data returns first or cache data does not exist
 */
-exports.get = function(url, callback, options = {}) {
+exports.get = function(url, options = {}, callback) {
 	var networkDataReceived = false;
-	var cacheData = {};
+	var cacheResponse = {};
+
+	options = checkDefaults(options);
 
 	// fetch fresh data
-	var networkUpdate = timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init))
+	var networkCall = timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init))
+		.then(handleResponse)
 		.then(function(response) {
-			return handleResponse(response, options);
-		})
-		.then(function(data) {
-			networkDataReceived = true;
-			if (options.handleNetworkData instanceof Function) callback = options.handleNetworkData;
-			switch (options.dataType) {
-				case 'json':
-					if (JSON.stringify(data) !== JSON.stringify(cacheData)) callback(data);
-					break;
-				case 'blob':
-					callback(data); //Implement camparisons for the below later
-				case 'arrayBuffer':
-					callback(data);
-				case 'formData':
-					callback(data);
-				case 'text':
-					callback(data);
-				case 'raw':
-					callback(data);
-					break;
-				default:
-					if (JSON.stringify(data) !== JSON.stringify(cacheData)) {
-						callback(data);
-					}
-					break;
+			if (!options.useCache) {
+				return handleResponseData(response, options)
+			} else {
+				if (!options.dataType) {
+					if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(response);
+					else callback(response);
+				} else {
+					console.log(options.dataType);
+					handleResponseData(response, options).then(function(data) {
+						networkDataReceived = true;
+						if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(data);
+						else callback(data); ///Implement object comparison?
+					});
+				}
 			}
-			if (options.dataType === '' && JSON.stringify(data) !== JSON.stringify(cacheData)) callback(data);
-			else if (options.rawData) callback(data);
 		})
 		.catch(function(error) {
 			if (options.handleError instanceof Function) options.handleError(error);
-			else console.log(error);
+			else throw Error(error);
 		});
+	if (!options.useCache) {
+		return networkCall;
+	}
 
 	// fetch cached data
 	if (!options.matchAll) {
 		caches
 			.match(url)
+			.then(handleResponse)
 			.then(
 				function(response) {
-					return handleResponse(response, options);
-				},
-				function() {
-					return null;
+					cachedResponse = response;
+					if (!options.dataType) {
+						if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(response);
+							else callback(response); ///Implement object comparison?
+					} else {
+						return handleResponseData(response, options).then(function(data) {
+							if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
+							else callback(data); ///Implement object comparison?
+						});
+					}
 				}
 			)
-			.then(function(data) {
-				if (data == null) {
-					return;
-				}
-				// don't overwrite newer network data
-				if (!networkDataReceived) {
-					cacheData = data;
-					if (options.handleCachedData instanceof Function) options.handleCachedData(data);
-					else callback(data);
-				}
-			});
 	} else {
 		caches
 			.matchAll(url)
+			.then(handleResponse)
 			.then(
 				function(responses) {
 					if (responses.length > 1) return responses;
-					else return handleResponse(responses);
+					else return handleResponseData(responses);
 				},
 				function() {
 					return null;
@@ -126,29 +124,78 @@ exports.get = function(url, callback, options = {}) {
 				}
 				// don't overwrite newer network data
 				if (!networkDataReceived) {
-					cacheData = data;
-					if (options.handleCachedData instanceof Function) options.handleCachedData(data);
+					cacheResponse = data;
+					if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
 					else callback(data);
 				}
 			});
 	}
 };
 
-exports.post = function(url) {
+/*
+options:
+init - init to pass through to fetch
+*/
+exports.post = function(url, data, options) {
+	options = checkDefaults(options);
+	options.init.method = 'POST';
+	options.init.body = data;
 
+	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
+		if (!response.ok) {
+			throw response;
+		} else {
+			return response;
+		}
+	});
+};
+
+/*
+options:
+init - init to pass through to fetch
+*/
+exports.put = function(url, data, options) {
+	options = checkDefaults(options);
+	options.init.method = 'PUT';
+	options.init.body = data;
+
+	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(handleResponse);
+};
+
+exports.delete = function(url, options) {
+	options = checkDefaults(options);
+	options.init.method = 'DELETE';
+
+	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(handleResponse);
+};
+
+function checkDefaults(options) {
+	if (!options.init) options.init = {};
+	if (!options.init.credentials) options = changeCredentials(options);
+
+	return options;
 }
 
-function handleResponse(response, options) {
+function changeCredentials(options) {
+	options.init.credentials = credentials;
+	return options;
+}
+
+function handleResponse(response) {
 	if (!response) {
 		return new Promise({
 			function(resolve, reject) {
-				reject();
+				reject("No response");
 			}
 		});
+	} else if (!response.ok) {
+		throw response;
+	} else {
+		return response;
 	}
-	if (!response.ok) {
-		throw Error(response.statusText);
-	}
+}
+
+function handleResponseData(response, options) {
 	switch (options.dataType) {
 		case 'json':
 			return response.json();
@@ -160,10 +207,8 @@ function handleResponse(response, options) {
 			return response.formData();
 		case 'text':
 			return response.text();
-		case 'raw':
-			return response;
 		default:
-			return response.json();
+			return response;
 	}
 }
 
