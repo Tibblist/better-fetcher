@@ -4,7 +4,7 @@
   "description": "A library to extend fetch in a similar manner to existing libraries for xhr requests. Including some features exclusive to using fetch.",
   "main": "better-fetch.js",
   "scripts": {
-    "test": "jest && nyc report --reporter=text-lcov > coverage.lcov",
+    "test": "jest && nyc report --reporter=text-lcov > coverage.lcov && nyc report --reporter=html",
     "serve": "node tests/server.js"
   },
   "repository": {
