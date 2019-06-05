@@ -4,7 +4,7 @@
   "description": "A project to implement advanced service worker functionality like pulling from cache and then recieving network data and updating the display to show newer data into a wrapper with standard fetch calls.",
   "main": "better-fetch.js",
   "scripts": {
-    "test": "./node_modules/.bin/istanbul cover jest",
+    "test": "jest",
     "serve": "node tests/server.js"
   },
   "repository": {
@@ -31,6 +31,7 @@
     "jest-puppeteer": "^4.2.0",
     "node-fetch": "^2.6.0",
     "puppeteer": "^1.17.0",
+    "puppeteer-to-istanbul": "^1.2.2",
     "webpack": "^4.33.0",
     "webpack-dev-middleware": "^3.7.0"
   },

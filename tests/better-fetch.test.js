@@ -1,6 +1,5 @@
 var puppeteer = require('puppeteer');
-const SIMPLE_URL = 'https://jsonplaceholder.typicode.com/todos/1';
-const SIMPLE_OPTIONS = {};
+const pti = require('puppeteer-to-istanbul');
 
 describe('Testing get()', () => {
 	beforeAll(async () => {
@@ -29,7 +28,14 @@ describe('Testing get()', () => {
 				return response;
 			};
 		});
+		await page.coverage.startJSCoverage();
 	});
+
+	afterAll(async () => {
+		const jsCoverage = await page.coverage.stopJSCoverage();
+		//pti.write(jsCoverage);
+	});
+
 	it('Simple caching check', async () => {
 		var data = await page.evaluate(async () => {
 			await fetchAndCache('https://jsonplaceholder.typicode.com/todos/1');
@@ -76,12 +82,11 @@ describe('Testing get()', () => {
 				}
 			);
 			if (customHandlerRan) {
-				return Promise.resolve([await responses[0].json(), await responses[1].json()]);
+				return Promise.resolve([ await responses[0].json(), await responses[1].json() ]);
 			} else {
 				return false;
 			}
 		});
-
 
 		if (!result) {
 			throw Error("Custom cache handler didn't run!");
@@ -95,23 +100,20 @@ describe('Testing get()', () => {
 	it('Simple error status test', async () => {
 		var testPassed = await page.evaluate(async () => {
 			var success = false;
-			var data = await betterFetch.get(
-				'https://httpstat.us/400',
-				{
-					handleError: function(err) {
-						if (err && err.statusText === 'Bad Request' && err.status === 400) {
-							success = true;
-						}
+			var data = await betterFetch.get('https://httpstat.us/400', {
+				handleError: function(err) {
+					if (err && err.statusText === 'Bad Request' && err.status === 400) {
+						success = true;
 					}
 				}
-			);
+			});
 			if (data) {
 				success = false;
 			}
 			return Promise.resolve(success);
-		})
+		});
 		if (!testPassed) {
-			throw Error("No error generated or Improper error generated");
+			throw Error('No error generated or Improper error generated');
 		}
 	});
 });
