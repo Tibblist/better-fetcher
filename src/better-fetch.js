@@ -1,8 +1,8 @@
 var exports = (module.exports = {});
 var cacheName = '';
 var defaultTimeout = 5000;
-var credentials = false;
-//FOR TESTING ONLY
+var credentials = "same-origin";
+/* //FOR TESTING ONLY
 var fetch;
 var caches;
 
@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'test') {
 	fetch = require('node-fetch');
 	caches = require('./mock-cache');
 	caches.init();
-}
+}*/
 
 exports.setCacheName = function(name) {
 	cacheName = name;
