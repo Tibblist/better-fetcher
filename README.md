@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/Tibblist/better-fetch.svg?branch=master)](https://travis-ci.org/Tibblist/better-fetch)
+[![codecov](https://codecov.io/gh/Tibblist/better-fetch/branch/master/graph/badge.svg)](https://codecov.io/gh/Tibblist/better-fetch)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-
+[![HitCount](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch.svg)](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch)
 
 # better-fetch
 
