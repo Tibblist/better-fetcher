@@ -29,18 +29,16 @@ The url destination to be fetched from. This will also be used as the key to che
 ### options:
 See the default options documentation for options that apply to all methods that use options.
 - **dataType**: This will wait for the response stream to end and parse it into the data type specified.
-- **useCache**: Set this to be true to first return data from cache if it exists (via the callback that must also be specified this will NOT return a promise), and then pull down network data which will also be passed to the callback function after. You should handle caching the new data that gets pulled down with whatever method you want to use in your service worker as this method will only send the network data to the callback function and will not update the cache. There is also a check to see if the data differs from what is currently in the cache and the callback won't be called a second time if the data isn't different from what was cached. 
-**Warning**: It is recommended that you make sure these calls are not also checked for a match in the cache in the service worker since this will waste resources checking again and also make the network call return the same cached data defeating the purpose of checking the network after pulling cached data.
-**Options below are only used if useCache is set.**
-
-	 - **matchAll**: Set this to be true in order for the callback to be called with the results of cache.matchAll instead of cache.match.
+- **useCache**: Set this to be true to first return data from cache if it exists (via the callback that must also be specified this will NOT return a promise), and then pull down network data which will also be passed to the callback function after. You should handle caching the new data that gets pulled down with whatever method you want to use in your service worker as this method will only send the network data to the callback function and will not update the cache. There is also a check to see if the data differs from what is currently in the cache and the callback won't be called a second time if the data isn't different from what was cached. **Options below are only used if useCache is set.**
+	- **matchAll**: Set this to be true in order for the callback to be called with the results of cache.matchAll instead of cache.match.
 	 - **handleCacheResponse**: Set a function that will be called upon a response being returned from the cache (use if you want 2 separate functions called on cache/network response). This will be called with a response object if no dataType is set and will be called with the data from the response if a dataType is set.
 	 - **handleNetworkResponse**: Set a function that will be called upon a response being returned from the network. See cached handler for specifics.
+	 
+**Warning**: It is recommended that you make sure these calls are not also checked for a match in the cache in the service worker since this will waste resources checking again and also make the network call return the same cached data defeating the purpose of checking the network after pulling cached data.
 
 ### callback:
 
 This function is called with returned data from either the cache or the network. This will only be used if the useCache option is set and is a mandatory parameter when the useCache option is set. It may be called multiple times, once when cache data is found and another when the network request comes back with up to date data. 
-
 **Warning**: Do not rely on it being called multiple times since there may not be any available cached data to return and/or the netowrk may return data identical to what is in the cache. In either case the callback function would only be called once.
 
   
