@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Tibblist/better-fetch.svg?branch=master)](https://travis-ci.org/Tibblist/better-fetch)
+
 # better-fetch
 
   
