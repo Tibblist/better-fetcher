@@ -34,7 +34,6 @@ options:
 matchAll - Set flag true to match all responses in the cache instead of first hit
 dataType - Types include: "json", "blob", "formData", "arrayBuffer", "text", "raw"
 init - Pass through init object to fetch call manually.
-handleError - function called if there is an error with the request.
 timeout - timeout (in ms) to set on the api call.
 handleCachedResponse - Manually specify a function to be used only for returned cached data.
 handleNetworkResponse - Manually specify a function to be used only for returned network data.
@@ -55,10 +54,6 @@ exports.get = function(url, options = {}, callback) {
 		.then(function(response) {
 			return handleNetworkResponse(response, options, callback);
 		})
-		.catch(function(error) {
-			if (options.handleError instanceof Function) options.handleError(error);
-			else throw Error(error);
-		});
 
 	// fetch cached data
 	if (options.useCache) checkCaches(url, options, callback);

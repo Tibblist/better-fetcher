@@ -100,13 +100,12 @@ describe('Testing get()', () => {
 	it('Simple error status test', async () => {
 		var testPassed = await page.evaluate(async () => {
 			var success = false;
-			var data = await betterFetch.get('https://httpstat.us/400', {
-				handleError: function(err) {
-					if (err && err.statusText === 'Bad Request' && err.status === 400) {
-						success = true;
-					}
-				}
-			});
+			var data;
+			try {
+				data = await betterFetch.get('https://httpstat.us/400');
+			} catch (error) {
+				success = true;
+			}
 			if (data) {
 				success = false;
 			}
