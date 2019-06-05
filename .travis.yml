@@ -4,4 +4,4 @@ node_js:
 before_install:
   - pip install --user codecov
 after_success:
-  - codecov
+  - codecov --file coverage.lcov
