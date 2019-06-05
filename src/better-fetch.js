@@ -82,12 +82,9 @@ exports.get = function(url, options = {}, callback) {
 			if (options.handleError instanceof Function) options.handleError(error);
 			else throw Error(error);
 		});
-	if (!options.useCache) {
-		return networkCall;
-	}
 
 	// fetch cached data
-	if (!options.matchAll) {
+	if (!options.matchAll && options.useCache) {
 		caches
 			.match(url)
 			.then(handleResponse)
@@ -104,8 +101,10 @@ exports.get = function(url, options = {}, callback) {
 						});
 					}
 				}
-			)
-	} else {
+			).catch(function(error) {
+				console.log(error);
+			})
+	} else if (options.useCache) {
 		caches
 			.matchAll(url)
 			.then(handleResponse)
@@ -130,6 +129,8 @@ exports.get = function(url, options = {}, callback) {
 				}
 			});
 	}
+
+	return networkCall;
 };
 
 /*
@@ -183,11 +184,11 @@ function changeCredentials(options) {
 
 function handleResponse(response) {
 	if (!response) {
-		return new Promise({
+		return new Promise(
 			function(resolve, reject) {
 				reject("No response");
 			}
-		});
+		);
 	} else if (!response.ok) {
 		throw response;
 	} else {

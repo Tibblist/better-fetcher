@@ -1,95 +1,117 @@
-var betterFetch = require('../src/better-fetch');
-var caches = require('../src/mock-cache');
-const fetchMock = require('fetch-mock');
-
+var puppeteer = require('puppeteer');
 const SIMPLE_URL = 'https://jsonplaceholder.typicode.com/todos/1';
 const SIMPLE_OPTIONS = {};
 
 describe('Testing get()', () => {
-	beforeEach(() => {
-		caches.init();
-	});
-	it('Simple caching check', (done) => {
-		isDone = [ false, false ];
-		betterFetch.get(SIMPLE_URL, { useCache: true }, function(response) {
-			response.json().then(function(data) {
-				if (!isDone[0]) {
-					expect(data.title).toBe('Old lorem ipsum');
-					expect(data.thing).toBeTruthy();
-					isDone[0] = true;
-				} else if (!isDone[1]) {
-					expect(data.title).toBe('delectus aut autem');
-					expect(data.thing).toBeUndefined();
-					isDone[1] = true;
-					if (checkIfDone(isDone)) done();
-				}
-			});
+	beforeAll(async () => {
+		await page.goto(PATH, { waitUntil: 'load' });
+		page.on('console', (msg) => {
+			console.log(msg.text() + '\n' + msg.location().url + ':' + msg.location().lineNumber);
+		});
+		page.evaluate(function() {
+			window.fetchAndCache = async function fetchAndCache(URL, init) {
+				var response = await fetch(URL, init);
+				// Check if we received a valid response
+				/*if (!response || response.status !== 200 || response.type !== 'basic') {
+					return response;
+				}*/
+
+				// IMPORTANT: Clone the response. A response is a stream
+				// and because we want the browser to consume the response
+				// as well as the cache consuming the response, we need
+				// to clone it so we have two streams.
+				var responseToCache = response.clone();
+
+				var cache = await caches.open('test-cache-v1');
+				console.log('Caching repsponse to: ' + URL);
+				await cache.put(URL, responseToCache);
+				console.log('Response cached');
+				return response;
+			};
 		});
 	});
-
-	it('Simple get request', () => {
-		return betterFetch
-			.get('https://jsonplaceholder.typicode.com/users/1', SIMPLE_OPTIONS)
-			.then(function(response) {
-				return response.json();
-			})
-			.then(function(data) {
-				expect(data.name).toBe('Leanne Graham');
-				expect(data.address.geo.lat).toBe('-37.3159');
-			});
-	});
-
-	it('Custom cache handler', (done) => {
-		var isDone = [ false, false ];
-		betterFetch.get(
-			SIMPLE_URL,
-			{
-				handleCachedResponse: function(response) {
-					isDone[0] = true;
-					response.json().then(function(data) {
-						expect(data.title).toBe('Old lorem ipsum');
-						expect(data.thing).toBeTruthy();
-						if (checkIfDone(isDone)) done();
-					});
-				},
-				useCache: true
-			},
-			function(response) {
-				isDone[1] = true;
+	it('Simple caching check', async () => {
+		var data = await page.evaluate(async () => {
+			await fetchAndCache('https://jsonplaceholder.typicode.com/todos/1');
+			responses = [];
+			await betterFetch.get('https://jsonplaceholder.typicode.com/todos/1', { useCache: true }, function(
+				response
+			) {
 				response.json().then(function(data) {
-					expect(data.title).toBe('delectus aut autem');
-					expect(data.thing).toBeUndefined();
-					if (checkIfDone(isDone)) done();
+					responses.push(data);
 				});
-			}
-		);
+			});
+			return responses;
+		});
+		expect(data.length).toBe(2);
+		expect(data[0].title === data[1].title);
 	});
 
-	it('Simple error status test', (done) => {
-		betterFetch.get(
-			'https://httpstat.us/400',
-			{
-				handleError: function(err) {
-					expect(err).toBeTruthy();
-					expect(err.statusText).toBe('Bad Request');
-					expect(err.status).toBe(400);
-					done();
+	it('Simple get request', async () => {
+		jest.setTimeout(30000);
+		var data = await page.evaluate(async () => {
+			var response = await betterFetch.get('https://jsonplaceholder.typicode.com/users/1');
+			return response.json();
+		});
+
+		expect(data.name).toBe('Leanne Graham');
+		expect(data.address.geo.lat).toBe('-37.3159');
+	});
+
+	it('Custom cache handler', async () => {
+		var result = await page.evaluate(async () => {
+			var customHandlerRan = false;
+			var responses = [];
+			await betterFetch.get(
+				'https://jsonplaceholder.typicode.com/todos/1',
+				{
+					handleCachedResponse: function(response) {
+						customHandlerRan = true;
+						responses.push(response);
+					},
+					useCache: true
+				},
+				function(response) {
+					responses.push(response);
 				}
-			},
-			function(data) {
-				expect(data).toBeUndefined();
+			);
+			if (customHandlerRan) {
+				return Promise.resolve([await responses[0].json(), await responses[1].json()]);
+			} else {
+				return false;
 			}
-		);
+		});
+
+
+		if (!result) {
+			throw Error("Custom cache handler didn't run!");
+		}
+		var data = result;
+
+		expect(data.length).toBe(2);
+		expect(data[0].title === data[1].title);
+	});
+
+	it('Simple error status test', async () => {
+		var testPassed = await page.evaluate(async () => {
+			var success = false;
+			var data = await betterFetch.get(
+				'https://httpstat.us/400',
+				{
+					handleError: function(err) {
+						if (err && err.statusText === 'Bad Request' && err.status === 400) {
+							success = true;
+						}
+					}
+				}
+			);
+			if (data) {
+				success = false;
+			}
+			return Promise.resolve(success);
+		})
+		if (!testPassed) {
+			throw Error("No error generated or Improper error generated");
+		}
 	});
 });
-
-function checkIfDone(arr) {
-	var done = true;
-	for (var i = 0; i < arr.length; i++) {
-		if (!arr[i]) {
-			done = false;
-			break;
-		}
-	}
-	return done;
-}

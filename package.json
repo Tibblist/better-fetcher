@@ -4,7 +4,8 @@
   "description": "A project to implement advanced service worker functionality like pulling from cache and then recieving network data and updating the display to show newer data into a wrapper with standard fetch calls.",
   "main": "better-fetch.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "serve": "node tests/server.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +24,22 @@
   },
   "homepage": "https://github.com/Tibblist/better-fetch#readme",
   "devDependencies": {
-    "fetch-mock": "^7.3.3",
+    "express": "^4.17.1",
     "jest": "^24.8.0",
-    "node-fetch": "^2.6.0"
+    "jest-cli": "^24.8.0",
+    "jest-puppeteer": "^4.2.0",
+    "node-fetch": "^2.6.0",
+    "puppeteer": "^1.17.0",
+    "webpack": "^4.33.0",
+    "webpack-dev-middleware": "^3.7.0"
+  },
+  "jest": {
+    "preset": "jest-puppeteer",
+    "globals": {
+      "PATH": "http://localhost:4444"
+    },
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   }
 }
