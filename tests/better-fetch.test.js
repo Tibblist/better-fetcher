@@ -33,7 +33,7 @@ describe('Testing get()', () => {
 
 	afterAll(async () => {
 		const jsCoverage = await page.coverage.stopJSCoverage();
-		//pti.write(jsCoverage);
+		pti.write(jsCoverage);
 	});
 
 	it('Simple caching check', async () => {
