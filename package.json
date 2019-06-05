@@ -1,7 +1,7 @@
 {
   "name": "better-fetch",
   "version": "1.0.0",
-  "description": "A project to implement advanced service worker functionality like pulling from cache and then recieving network data and updating the display to show newer data into a wrapper with standard fetch calls.",
+  "description": "A library to extend fetch in a similar manner to existing libraries for xhr requests. Including some features exclusive to using fetch.",
   "main": "better-fetch.js",
   "scripts": {
     "test": "jest && nyc report --reporter=text-lcov > coverage.lcov",

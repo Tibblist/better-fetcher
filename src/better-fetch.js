@@ -1,16 +1,7 @@
 var exports = (module.exports = {});
 var cacheName = '';
 var defaultTimeout = 5000;
-var credentials = "same-origin";
-/* //FOR TESTING ONLY
-var fetch;
-var caches;
-
-if (process.env.NODE_ENV === 'test') {
-	fetch = require('node-fetch');
-	caches = require('./mock-cache');
-	caches.init();
-}*/
+var credentials = 'same-origin';
 
 exports.setCacheName = function(name) {
 	cacheName = name;
@@ -63,7 +54,7 @@ exports.get = function(url, options = {}, callback) {
 		.then(handleResponse)
 		.then(function(response) {
 			if (!options.useCache) {
-				return handleResponseData(response, options)
+				return handleResponseData(response, options);
 			} else {
 				if (!options.dataType) {
 					if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(response);
@@ -84,51 +75,7 @@ exports.get = function(url, options = {}, callback) {
 		});
 
 	// fetch cached data
-	if (!options.matchAll && options.useCache) {
-		caches
-			.match(url)
-			.then(handleResponse)
-			.then(
-				function(response) {
-					cachedResponse = response;
-					if (!options.dataType) {
-						if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(response);
-							else callback(response); ///Implement object comparison?
-					} else {
-						return handleResponseData(response, options).then(function(data) {
-							if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
-							else callback(data); ///Implement object comparison?
-						});
-					}
-				}
-			).catch(function(error) {
-				console.log(error);
-			})
-	} else if (options.useCache) {
-		caches
-			.matchAll(url)
-			.then(handleResponse)
-			.then(
-				function(responses) {
-					if (responses.length > 1) return responses;
-					else return handleResponseData(responses);
-				},
-				function() {
-					return null;
-				}
-			)
-			.then(function(data) {
-				if (data == null) {
-					return;
-				}
-				// don't overwrite newer network data
-				if (!networkDataReceived) {
-					cacheResponse = data;
-					if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
-					else callback(data);
-				}
-			});
-	}
+	checkCaches(url, options, callback);
 
 	return networkCall;
 };
@@ -170,6 +117,53 @@ exports.delete = function(url, options) {
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(handleResponse);
 };
 
+function checkCaches(url, options, callback) {
+	if (!options.matchAll && options.useCache) {
+		caches
+			.match(url)
+			.then(handleResponse)
+			.then(function(response) {
+				cachedResponse = response;
+				if (!options.dataType) {
+					if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(response);
+					else callback(response); ///Implement object comparison?
+				} else {
+					return handleResponseData(response, options).then(function(data) {
+						if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
+						else callback(data); ///Implement object comparison?
+					});
+				}
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
+	} else if (options.useCache) {
+		caches
+			.matchAll(url)
+			.then(handleResponse)
+			.then(
+				function(responses) {
+					if (responses.length > 1) return responses;
+					else return handleResponseData(responses);
+				},
+				function() {
+					return null;
+				}
+			)
+			.then(function(data) {
+				if (data == null) {
+					return;
+				}
+				// don't overwrite newer network data
+				if (!networkDataReceived) {
+					cacheResponse = data;
+					if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
+					else callback(data);
+				}
+			});
+	}
+}
+
 function checkDefaults(options) {
 	if (!options.init) options.init = {};
 	if (!options.init.credentials) options = changeCredentials(options);
@@ -184,11 +178,9 @@ function changeCredentials(options) {
 
 function handleResponse(response) {
 	if (!response) {
-		return new Promise(
-			function(resolve, reject) {
-				reject("No response");
-			}
-		);
+		return new Promise(function(resolve, reject) {
+			reject('No response');
+		});
 	} else if (!response.ok) {
 		throw response;
 	} else {
