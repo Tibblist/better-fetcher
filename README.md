@@ -46,7 +46,7 @@ See the default options documentation for options that apply to all methods that
 
 ### callback:
 
-This function is called with returned data from either the cache or the network. This will only be used if the useCache option is set and is a mandatory parameter when the useCache option is set. It may be called multiple times, once when cache data is found and another when the network request comes back with up to date data. 
+This function is called with returned data from either the cache or the network. This will only be used if the useCache option is set and is a mandatory parameter when the useCache option is set. It may be called multiple times, once when cache data is found and another when the network request comes back with up to date data. If a response returned from the cache is not an OK response then it will be ignored and will not be passed to the callback function.
 **Warning**: Do not rely on it being called multiple times since there may not be any available cached data to return and/or the netowrk may return data identical to what is in the cache. In either case the callback function would only be called once.
 
   

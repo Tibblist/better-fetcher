@@ -53,21 +53,7 @@ exports.get = function(url, options = {}, callback) {
 	var networkCall = timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init))
 		.then(handleResponse)
 		.then(function(response) {
-			if (!options.useCache) {
-				return handleResponseData(response, options);
-			} else {
-				if (!options.dataType) {
-					if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(response);
-					else callback(response);
-				} else {
-					console.log(options.dataType);
-					handleResponseData(response, options).then(function(data) {
-						networkDataReceived = true;
-						if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(data);
-						else callback(data); ///Implement object comparison?
-					});
-				}
-			}
+			return handleNetworkResponse(response, options, callback);
 		})
 		.catch(function(error) {
 			if (options.handleError instanceof Function) options.handleError(error);
@@ -75,7 +61,7 @@ exports.get = function(url, options = {}, callback) {
 		});
 
 	// fetch cached data
-	checkCaches(url, options, callback);
+	if (options.useCache) checkCaches(url, options, callback);
 
 	return networkCall;
 };
@@ -118,48 +104,25 @@ exports.delete = function(url, options) {
 };
 
 function checkCaches(url, options, callback) {
-	if (!options.matchAll && options.useCache) {
+	if (!options.matchAll) {
 		caches
 			.match(url)
 			.then(handleResponse)
 			.then(function(response) {
-				cachedResponse = response;
-				if (!options.dataType) {
-					if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(response);
-					else callback(response); ///Implement object comparison?
-				} else {
-					return handleResponseData(response, options).then(function(data) {
-						if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
-						else callback(data); ///Implement object comparison?
-					});
-				}
+				return handleCacheResponse(response, options, callback);
 			})
 			.catch(function(error) {
 				console.log(error);
 			});
-	} else if (options.useCache) {
+	} else {
 		caches
-			.matchAll(url)
+			.match(url)//.matchAll(url)
 			.then(handleResponse)
-			.then(
-				function(responses) {
-					if (responses.length > 1) return responses;
-					else return handleResponseData(responses);
-				},
-				function() {
-					return null;
-				}
-			)
-			.then(function(data) {
-				if (data == null) {
-					return;
-				}
-				// don't overwrite newer network data
-				if (!networkDataReceived) {
-					cacheResponse = data;
-					if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
-					else callback(data);
-				}
+			.then(function(response) {
+				return handleCacheResponse(response, options, callback);
+			})
+			.catch(function(error) {
+				console.log(error);
 			});
 	}
 }
@@ -185,6 +148,36 @@ function handleResponse(response) {
 		throw response;
 	} else {
 		return response;
+	}
+}
+
+function handleNetworkResponse(response, options, callback) {
+	if (!options.useCache) {
+		return handleResponseData(response, options);
+	} else {
+		if (!options.dataType) {
+			if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(response);
+			else callback(response);
+		} else {
+			console.log(options.dataType);
+			handleResponseData(response, options).then(function(data) {
+				networkDataReceived = true;
+				if (options.handleNetworkResponse instanceof Function) options.handleNetworkResponse(data);
+				else callback(data); ///Implement object comparison?
+			});
+		}
+	}
+}
+
+function handleCacheResponse(response, options, callback) {
+	if (!options.dataType) {
+		if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(response);
+		else callback(response); ///Implement object comparison?
+	} else {
+		return handleResponseData(response, options).then(function(data) {
+			if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(data);
+			else callback(data); ///Implement object comparison?
+		});
 	}
 }
 
