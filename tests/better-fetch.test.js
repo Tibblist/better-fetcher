@@ -31,11 +31,6 @@ describe('Testing get()', () => {
 		await page.coverage.startJSCoverage();
 	});
 
-	afterAll(async () => {
-		const jsCoverage = await page.coverage.stopJSCoverage();
-		pti.write(jsCoverage);
-	});
-
 	it('Simple caching check', async () => {
 		var data = await page.evaluate(async () => {
 			await fetchAndCache('https://jsonplaceholder.typicode.com/todos/1');
@@ -115,4 +110,94 @@ describe('Testing get()', () => {
 			throw Error('No error generated or Improper error generated');
 		}
 	});
+});
+
+describe('Testing post', () => {
+	beforeAll(async () => {
+		await page.goto(PATH, { waitUntil: 'load' });
+		page.on('console', (msg) => {
+			console.log(msg.text() + '\n' + msg.location().url + ':' + msg.location().lineNumber);
+		});
+	});
+
+	afterAll(async () => {
+		const jsCoverage = await page.coverage.stopJSCoverage();
+		pti.write(jsCoverage);
+	});
+
+	it('Simple POST test', async () => {
+		var result = await page.evaluate(async () => {
+			var postResponse = await betterFetch.post('https://jsonplaceholder.typicode.com/posts', {
+				name: 'George',
+				address: '123 test lane'
+			});
+			return await postResponse.json();
+		});
+		expect(!isNaN(result.id)).toBeTruthy();
+		expect(result.name).toBe('George');
+	});
+
+	it('Simple error status test', async () => {
+		var testPassed = await page.evaluate(async () => {
+			var success = false;
+			var data;
+			try {
+				data = await betterFetch.post('https://httpstat.us/400');
+			} catch (error) {
+				success = true;
+			}
+			if (data) {
+				success = false;
+			}
+			return Promise.resolve(success);
+		});
+		if (!testPassed) {
+			throw Error('No error generated or Improper error generated');
+		}
+	});
+});
+
+describe('Testing put', () => {
+	it('Simple put test', async () => {
+		var result = await page.evaluate(async () => {
+			var putResponse = await betterFetch.put('https://jsonplaceholder.typicode.com/posts/1', {
+				id: 1,
+				title: 'foo',
+				body: 'bar',
+				userId: 1
+			});
+			return await putResponse.json();
+		});
+		expect(!isNaN(result.id)).toBeTruthy();
+		expect(result.body).toBe('bar');
+	});
+
+	it('Simple error status test', async () => {
+		var testPassed = await page.evaluate(async () => {
+			var success = false;
+			var data;
+			try {
+				data = await betterFetch.put('https://httpstat.us/400');
+			} catch (error) {
+				success = true;
+			}
+			if (data) {
+				success = false;
+			}
+			return Promise.resolve(success);
+		});
+		if (!testPassed) {
+			throw Error('No error generated or Improper error generated');
+		}
+	});
+});
+
+describe('Testing delete', () => {
+	it("Simple delete test", async () => {
+		var result = await page.evaluate(async () => {
+			var response = betterFetch.delete('https://jsonplaceholder.typicode.com/posts/1');
+			return Promise.resolve(response);
+		})
+		//console.log(result);
+	})
 });

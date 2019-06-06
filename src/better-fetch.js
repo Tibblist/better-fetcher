@@ -53,7 +53,7 @@ exports.get = function(url, options = {}, callback) {
 		.then(handleResponse)
 		.then(function(response) {
 			return handleNetworkResponse(response, options, callback);
-		})
+		});
 
 	// fetch cached data
 	if (options.useCache) checkCaches(url, options, callback);
@@ -64,11 +64,12 @@ exports.get = function(url, options = {}, callback) {
 /*
 options:
 init - init to pass through to fetch
+Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options) {
 	options = checkDefaults(options);
 	options.init.method = 'POST';
-	options.init.body = data;
+	options = prepareData(data, options);
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
@@ -86,9 +87,15 @@ init - init to pass through to fetch
 exports.put = function(url, data, options) {
 	options = checkDefaults(options);
 	options.init.method = 'PUT';
-	options.init.body = data;
+	options = prepareData(data, options);
 
-	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(handleResponse);
+	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
+		if (!response.ok) {
+			throw response;
+		} else {
+			return response;
+		}
+	});
 };
 
 exports.delete = function(url, options) {
@@ -111,7 +118,7 @@ function checkCaches(url, options, callback) {
 			});
 	} else {
 		caches
-			.match(url)//.matchAll(url)
+			.match(url) //.matchAll(url)
 			.then(handleResponse)
 			.then(function(response) {
 				return handleCacheResponse(response, options, callback);
@@ -122,7 +129,19 @@ function checkCaches(url, options, callback) {
 	}
 }
 
+function prepareData(data, options) {
+	if (isObject(data)) {
+		data = JSON.stringify(data);
+		options.init.headers = {
+			'Content-type': 'application/json; charset=UTF-8'
+		};
+	}
+	options.init.body = data;
+	return options;
+}
+
 function checkDefaults(options) {
+	if (!options) options = {};
 	if (!options.init) options.init = {};
 	if (!options.init.credentials) options = changeCredentials(options);
 
@@ -209,4 +228,8 @@ function timeoutPromise(ms, promise) {
 			}
 		);
 	});
+}
+
+function isObject(obj) {
+	return obj === Object(obj);
 }
