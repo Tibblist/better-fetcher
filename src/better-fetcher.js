@@ -67,8 +67,8 @@ init - init to pass through to fetch
 Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options) {
-	options.init.method = 'POST';
 	options = prepareData(data, options);
+	options.init.method = 'POST';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
@@ -84,8 +84,8 @@ options:
 init - init to pass through to fetch
 */
 exports.put = function(url, data, options) {
-	options.init.method = 'PUT';
 	options = prepareData(data, options);
+	options.init.method = 'PUT';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
