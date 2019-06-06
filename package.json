@@ -1,8 +1,8 @@
 {
-  "name": "better-fetch",
+  "name": "better-fetcher",
   "version": "1.0.0",
   "description": "A library to extend fetch in a similar manner to existing libraries for xhr requests. Including some features exclusive to using fetch.",
-  "main": "better-fetch.js",
+  "main": "better-fetcher.js",
   "scripts": {
     "test": "jest && nyc report --reporter=text-lcov > coverage.lcov && nyc report --reporter=html",
     "serve": "node tests/server.js"

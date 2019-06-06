@@ -1,8 +1,8 @@
 module.exports = {
-	entry: './src/better-fetch.js',
+	entry: './src/better-fetcher.js',
 	output: {
-	  filename: 'better-fetch.min.js',
-	  library: 'betterFetch'
+	  filename: 'bette-fetcher.min.js',
+	  library: 'betterFetcher'
 	},
 	mode: 'development'
   }

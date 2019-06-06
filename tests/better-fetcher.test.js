@@ -35,7 +35,7 @@ describe('Testing get()', () => {
 		var data = await page.evaluate(async () => {
 			await fetchAndCache('https://jsonplaceholder.typicode.com/todos/1');
 			responses = [];
-			await betterFetch.get('https://jsonplaceholder.typicode.com/todos/1', { useCache: true }, function(
+			await betterFetcher.get('https://jsonplaceholder.typicode.com/todos/1', { useCache: true }, function(
 				response
 			) {
 				response.json().then(function(data) {
@@ -51,7 +51,7 @@ describe('Testing get()', () => {
 	it('Simple get request', async () => {
 		jest.setTimeout(30000);
 		var data = await page.evaluate(async () => {
-			var response = await betterFetch.get('https://jsonplaceholder.typicode.com/users/1');
+			var response = await betterFetcher.get('https://jsonplaceholder.typicode.com/users/1');
 			return response.json();
 		});
 
@@ -63,7 +63,7 @@ describe('Testing get()', () => {
 		var result = await page.evaluate(async () => {
 			var customHandlerRan = false;
 			var responses = [];
-			await betterFetch.get(
+			await betterFetcher.get(
 				'https://jsonplaceholder.typicode.com/todos/1',
 				{
 					handleCachedResponse: function(response) {
@@ -97,7 +97,7 @@ describe('Testing get()', () => {
 			var success = false;
 			var data;
 			try {
-				data = await betterFetch.get('https://httpstat.us/400');
+				data = await betterFetcher.get('https://httpstat.us/400');
 			} catch (error) {
 				success = true;
 			}
@@ -127,7 +127,7 @@ describe('Testing post', () => {
 
 	it('Simple POST test', async () => {
 		var result = await page.evaluate(async () => {
-			var postResponse = await betterFetch.post('https://jsonplaceholder.typicode.com/posts', {
+			var postResponse = await betterFetcher.post('https://jsonplaceholder.typicode.com/posts', {
 				name: 'George',
 				address: '123 test lane'
 			});
@@ -142,7 +142,7 @@ describe('Testing post', () => {
 			var success = false;
 			var data;
 			try {
-				data = await betterFetch.post('https://httpstat.us/400');
+				data = await betterFetcher.post('https://httpstat.us/400');
 			} catch (error) {
 				success = true;
 			}
@@ -160,7 +160,7 @@ describe('Testing post', () => {
 describe('Testing put', () => {
 	it('Simple put test', async () => {
 		var result = await page.evaluate(async () => {
-			var putResponse = await betterFetch.put('https://jsonplaceholder.typicode.com/posts/1', {
+			var putResponse = await betterFetcher.put('https://jsonplaceholder.typicode.com/posts/1', {
 				id: 1,
 				title: 'foo',
 				body: 'bar',
@@ -177,7 +177,7 @@ describe('Testing put', () => {
 			var success = false;
 			var data;
 			try {
-				data = await betterFetch.put('https://httpstat.us/400');
+				data = await betterFetcher.put('https://httpstat.us/400');
 			} catch (error) {
 				success = true;
 			}
@@ -195,7 +195,7 @@ describe('Testing put', () => {
 describe('Testing delete', () => {
 	it("Simple delete test", async () => {
 		var result = await page.evaluate(async () => {
-			var response = betterFetch.delete('https://jsonplaceholder.typicode.com/posts/1');
+			var response = betterFetcher.delete('https://jsonplaceholder.typicode.com/posts/1');
 			return Promise.resolve(response);
 		})
 		//console.log(result);

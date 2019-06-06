@@ -6,11 +6,11 @@
 [![dependencies](https://david-dm.org/Tibblist/better-fetch.svg)](https://david-dm.org/Tibblist/better-fetch)
 [![Maintainability](https://api.codeclimate.com/v1/badges/18ae816bedeac6004eca/maintainability)](https://codeclimate.com/github/Tibblist/better-fetch/maintainability)
 
-# better-fetch
+# fetcher
 
   
 
-better-fetch is a library to extend fetch and make it more in line with typical libraries that use regular httprequest like axios/superagent. It implements the standard get/put/post/delete calls in a similar style but instead uses fetch to make these calls for better compatibility with service workers and taking advantage of many other improvements in fetch like response streaming. It also addresses a few of the shortcomings with fetch such as no timeout and returning ok from a 404/500 resoonse. It also provides support for making PWA/offline apps by including a mechanism in the get request to instead specify a callback rather than a promise that will be called once with cache data if found and then a network request will be sent out and the callback will be called again with recently obtained data from the network if the data differs from what was cached.
+fetcher is a library to extend fetch and make it more in line with typical libraries that use regular httprequest like axios/superagent. It implements the standard get/put/post/delete calls in a similar style but instead uses fetch to make these calls for better compatibility with service workers and taking advantage of many other improvements in fetch like response streaming. It also addresses a few of the shortcomings with fetch such as no timeout and returning ok from a 404/500 resoonse. It also provides support for making PWA/offline apps by including a mechanism in the get request to instead specify a callback rather than a promise that will be called once with cache data if found and then a network request will be sent out and the callback will be called again with recently obtained data from the network if the data differs from what was cached.
 
   
 

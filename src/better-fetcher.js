@@ -67,7 +67,6 @@ init - init to pass through to fetch
 Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options) {
-	options = checkDefaults(options);
 	options.init.method = 'POST';
 	options = prepareData(data, options);
 
@@ -85,7 +84,6 @@ options:
 init - init to pass through to fetch
 */
 exports.put = function(url, data, options) {
-	options = checkDefaults(options);
 	options.init.method = 'PUT';
 	options = prepareData(data, options);
 
@@ -130,6 +128,7 @@ function checkCaches(url, options, callback) {
 }
 
 function prepareData(data, options) {
+	options = checkDefaults(options);
 	if (isObject(data)) {
 		data = JSON.stringify(data);
 		options.init.headers = {
