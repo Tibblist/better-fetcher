@@ -83,7 +83,6 @@ Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options) {
 	options = prepareData(data, options, 'POST');
-	options.init.method = 'POST';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
@@ -100,7 +99,6 @@ init - init to pass through to fetch
 */
 exports.put = function(url, data, options) {
 	options = prepareData(data, options, 'PUT');
-	options.init.method = 'PUT';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
@@ -113,7 +111,6 @@ exports.put = function(url, data, options) {
 
 exports.delete = function(url, options) {
 	options = checkDefaults(options, 'DELETE');
-	options.init.method = 'DELETE';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
@@ -163,6 +160,7 @@ function prepareData(data, options, type) {
 function checkDefaults(options, type) {
 	if (!options) options = {};
 	if (!options.init) options.init = {};
+	if (!options.init.method) options.init.method = type;
 	if (!options.init.credentials) options = changeCredentials(options);
 	options = changeHeaders(options, type);
 

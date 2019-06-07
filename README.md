@@ -1,16 +1,10 @@
 
 [![Build Status](https://travis-ci.org/Tibblist/better-fetch.svg?branch=master)](https://travis-ci.org/Tibblist/better-fetch)
-
 [![codecov](https://codecov.io/gh/Tibblist/better-fetch/branch/master/graph/badge.svg)](https://codecov.io/gh/Tibblist/better-fetch)
-
 [![Known Vulnerabilities](https://snyk.io/test/github/Tibblist/better-fetch/badge.svg?targetFile=package.json)](https://snyk.io/test/github/Tibblist/better-fetch?targetFile=package.json)
-
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-
 [![HitCount](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch.svg)](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch)
-
 [![dependencies](https://david-dm.org/Tibblist/better-fetch.svg)](https://david-dm.org/Tibblist/better-fetch)
-
 [![Maintainability](https://api.codeclimate.com/v1/badges/18ae816bedeac6004eca/maintainability)](https://codeclimate.com/github/Tibblist/better-fetch/maintainability)
 
   
@@ -87,7 +81,7 @@ Posting json to a server:
 ```
 # Documentation:
 
- ## Options
+## Options
 These are universal options that can be specified for any method that accepts an options object.
  - **init**: You can use this to manually pass through an init object to the fetch call. This follows the same api/documentation as is specified [Here](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
  - **timeout**: This is the time (in ms) before the fetch call will timeout. This will either abort the fetch call if browser supports it, or just simply return a timeout error if the browser doesn't support abortController yet.
