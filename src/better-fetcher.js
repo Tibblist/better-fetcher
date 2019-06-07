@@ -115,7 +115,13 @@ exports.delete = function(url, options) {
 	options = checkDefaults(options, 'DELETE');
 	options.init.method = 'DELETE';
 
-	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(handleResponse);
+	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
+		if (!response.ok) {
+			throw response;
+		} else {
+			return response;
+		}
+	});
 };
 
 function checkCaches(url, options, callback) {
