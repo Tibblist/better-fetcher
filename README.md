@@ -40,9 +40,51 @@ better-fetch is a library to extend fetch and make it more in line with typical 
 - Supports using service-workers and building a PWA/offline app by allowing you to first check the cache and then display that data while also pulling new data from the network (if possible) and displaying that as soon as it is received.
 
   
-
+# Examples
+  Getting a simple json object from the server:
   
 
+  ```js 
+    betterFetcher.get("MY URL")
+	  .then(response => response.json())
+	  .then(function(data) {console.log(data)});
+	  .catch(function(error) {console.log(error)}); //In the case of error sending request or returning a 4xx/5xx 
+	
+  ```
+  Getting a simple json object from server, but displaying cached data first then net{}work data once it is received:
+  ```js
+	//Using promises
+	betterFetcher.get("MY URL", { useCache: true }, function(response) {
+		response.json().then(function(data) {
+			updatePageView(data); //Will likely be called twice if there is a cache hit and then a network response
+		})
+	})
+	//Same example below but using async/await
+	betterFetcher.get("MY URL", { useCache: true }, function(response) {
+		var data = await response.json();
+		updatePageView(data); //Will likely be called twice if there is a cache hit and then a network response
+	})
+```
+Getting a simple json object from the server and automatically parsing it into json before returning:
+```js
+	betterFetcher.get("MY URL", { dataType: "JSON" })
+		.then(function(data) {
+			console.log(data);
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
+```
+Posting json to a server:
+```js
+	betterFetcher.post("MY URL", { name: "George", id: 2 })
+		.then(function(response) {
+			doStuff(response);
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
+```
 # Documentation:
 
  ## Options
@@ -114,6 +156,9 @@ Use this to set the default request timeout period in ms.
   
 
 **Q**: I am getting an error when doing get().then()?
+
+  
+
   
 
 **A**: Check if you are setting useCache in your options. If you are then you must pass a callback function as the third parameter which will be called twice if there is a cache hit for the response and the network also returns data.

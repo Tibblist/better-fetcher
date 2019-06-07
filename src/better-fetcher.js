@@ -167,9 +167,9 @@ function changeHeaders(options, type) {
 	const header = {};
 	Object.keys(defaultHeaders.ALL).forEach((key) => (result[key] = defaultHeaders.ALL[key]));
 	Object.keys(defaultHeaders[type]).forEach((key) => (result[key] = defaultHeaders[type][key]));
-	Object.keys(options.init.header).forEach((key) => (result[key] = options.init.header[key]));
+	if (options.init.header) Object.keys(options.init.header).forEach((key) => (result[key] = options.init.header[key]));
 
-	options.init.header = header;
+	if (Object.keys(header).length > 0) options.init.header = header;
 	return options;
 }
 
