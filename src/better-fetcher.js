@@ -1,7 +1,7 @@
 var exports = (module.exports = {});
 var cacheName = '';
 var defaultTimeout = 5000;
-var credentials = 'same-origin';
+var defaultCredentials = 'same-origin';
 var defaultHeaders = {
 	GET: {},
 	POST: {},
@@ -9,6 +9,8 @@ var defaultHeaders = {
 	DELETE: {},
 	ALL: {}
 };
+var defaultDataType = '';
+var networkDataReceived = false;
 
 exports.setCacheName = function(name) {
 	cacheName = name;
@@ -18,20 +20,20 @@ exports.getCacheName = function() {
 	return cacheName;
 };
 
-exports.setDefaultTimeOut = function(ms) {
+exports.setDefaultTimeout = function(ms) {
 	defaultTimeout = ms;
 };
 
-exports.getDefaultTimeOut = function() {
+exports.getDefaultTimeout = function() {
 	return defaultTimeout;
 };
 
 exports.setDefaultCredentialsPolicy = function(mode) {
-	credentialsPolicy = mode;
+	defaultCredentials = mode;
 };
 
 exports.getDefaultCredentialsPolicy = function() {
-	return credentialsPolicy;
+	return defaultCredentials;
 };
 
 exports.setDefaultHeaders = function(headers, type) {
@@ -40,6 +42,14 @@ exports.setDefaultHeaders = function(headers, type) {
 
 exports.getDefaultHeaders = function(type) {
 	return defaultHeaders[type];
+};
+
+exports.setDefaultDataType = function(type) {
+	defaultDataType = type;
+};
+
+exports.getDefaultDataType = function() {
+	return defaultDataType;
 };
 
 /*
@@ -58,7 +68,7 @@ The function to be called with data as it is received. Expect this function to b
 Do not rely on it being called twice however given that it won't be called a second time if network data returns first or cache data does not exist
 */
 exports.get = function(url, options = {}, callback) {
-	var networkDataReceived = false;
+	networkDataReceived = false;
 	var cacheResponse = {};
 
 	options = checkDefaults(options, 'GET');
@@ -67,6 +77,7 @@ exports.get = function(url, options = {}, callback) {
 	var networkCall = timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init))
 		.then(handleResponse)
 		.then(function(response) {
+			networkDataReceived = true;
 			return handleNetworkResponse(response, options, callback);
 		});
 
@@ -103,7 +114,7 @@ exports.delete = function(url, options) {
 	return timeoutFetch(url, options);
 };
 
-function timeoutFetch (url, options) {
+function timeoutFetch(url, options) {
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
 			throw response;
@@ -153,7 +164,7 @@ function checkDefaults(options, type) {
 	if (!options) options = {};
 	if (!options.init) options.init = {};
 	if (!options.init.method) options.init.method = type;
-	if (!options.init.credentials) options = changeCredentials(options);
+	if (!options.init.defaultCredentials) options = changeCredentials(options);
 	options = changeHeaders(options, type);
 
 	return options;
@@ -161,16 +172,20 @@ function checkDefaults(options, type) {
 
 function changeHeaders(options, type) {
 	const header = {};
-	Object.keys(defaultHeaders.ALL).forEach((key) => (result[key] = defaultHeaders.ALL[key]));
-	Object.keys(defaultHeaders[type]).forEach((key) => (result[key] = defaultHeaders[type][key]));
-	if (options.init.header) Object.keys(options.init.header).forEach((key) => (result[key] = options.init.header[key]));
+	Object.keys(defaultHeaders.ALL).forEach((key) => (header[key] = defaultHeaders.ALL[key]));
+	Object.keys(defaultHeaders[type]).forEach((key) => (header[key] = defaultHeaders[type][key]));
+	if (options.init.header)
+		Object.keys(options.init.header).forEach((key) => (header[key] = options.init.header[key]));
 
-	if (Object.keys(header).length > 0) options.init.header = header;
+	if (Object.keys(header).length > 0) {
+		options.init.headers = header;
+	}
+
 	return options;
 }
 
 function changeCredentials(options) {
-	options.init.credentials = credentials;
+	options.init.defaultCredentials = defaultCredentials;
 	return options;
 }
 
@@ -205,6 +220,10 @@ function handleNetworkResponse(response, options, callback) {
 }
 
 function handleCacheResponse(response, options, callback) {
+	//Don't overwrite network data with cached data
+	if (networkDataReceived) {
+		return;
+	}
 	if (!options.dataType) {
 		if (options.handleCachedResponse instanceof Function) options.handleCachedResponse(response);
 		else callback(response); ///Implement object comparison?

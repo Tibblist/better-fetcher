@@ -45,7 +45,19 @@ better-fetcher is a library to extend fetch and make it more in line with typica
 	  .then(response => response.json())
 	  .then(function(data) {console.log(data)});
 	  .catch(function(error) {console.log(error)}); //In the case of error sending request or returning a 4xx/5xx 
+  ```
 	
+Getting a simple json object from the server, with default dataType set to make it more like axios/superagent.
+
+```js 
+    betterFetcher.setDefaultDataType("json");
+    betterFetcher.get("MY URL")
+    	.then(function(data) {console.log(data)});
+    	.catch(function(error) {console.log(error)}); //In the case of error sending request or returning a 4xx/5xx
+    //Or you can do it on a per call basis
+    betterFetcher.get("MY URL", {dataType: "json"})
+	.then(function(data) {console.log(data)});
+	.catch(function(error) {console.log(error)});
   ```
   Getting a simple json object from server, but displaying cached data first then net{}work data once it is received:
   ```js
@@ -63,13 +75,13 @@ better-fetcher is a library to extend fetch and make it more in line with typica
 ```
 Getting a simple json object from the server and automatically parsing it into json before returning:
 ```js
-	betterFetcher.get("MY URL", { dataType: "JSON" })
-		.then(function(data) {
-			console.log(data);
-		})
-		.catch(function(error) {
-			console.log(error);
-		});
+    betterFetcher.get("MY URL", { dataType: "JSON" })
+	.then(function(data) {
+		console.log(data);
+	})
+	.catch(function(error) {
+		console.log(error);
+	});
 ```
 Posting json to a server:
 ```js
@@ -108,7 +120,7 @@ The url destination to be fetched from. This will also be used as the key to che
 
 See the default options documentation for options that apply to all methods that use options.
 
--  **dataType**: This will wait for the response stream to end and parse it into the data type specified.
+-  **dataType**: This will wait for the response stream to end and parse it into the data type specified. Possible options are arrayBuffer, blob, formData, json, text. 
 
 -  **useCache**: Set this to be true to first return data from cache if it exists (via the callback that must also be specified this will NOT return a promise), and then pull down network data which will also be passed to the callback function after. You should handle caching the new data that gets pulled down with whatever method you want to use in your service worker as this method will only send the network data to the callback function and will not update the cache. There is also a check to see if the data differs from what is currently in the cache and the callback won't be called a second time if the data isn't different from what was cached. **Options below are only used if useCache is set.**
 

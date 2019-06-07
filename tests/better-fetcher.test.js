@@ -48,6 +48,81 @@ describe('Testing get()', () => {
 		expect(data[0].title === data[1].title);
 	});
 
+	it("Default timeout test", async ()=> {
+		jest.setTimeout(10000);
+		var result = await page.evaluate(async () => {
+			var success = false;
+			var data = undefined;
+			try {
+				data = await betterFetcher.get("https://httpstat.us/200?sleep=5300");
+			} catch(e) {
+				success = true;
+			}
+			if (data) {
+				success = false;
+			}
+			return Promise.resolve(success);
+		});
+
+		expect(result).toBeTruthy();
+	})
+
+	it("Custom timeout test", async () => {
+		jest.setTimeout(10000);
+		var result = await page.evaluate(async () => {
+			var success = true;
+			var data = undefined;
+			try {
+				data = await betterFetcher.get("https://httpstat.us/200?sleep=5300", { timeout: 8000 });
+			} catch(e) {
+				console.log(e);
+				success = false;
+			}
+			if (!data) {
+				success = false;
+			}
+			return Promise.resolve(success);
+		});
+
+		expect(result).toBeTruthy();
+	})
+
+	it("Set default time test", async () => {
+		jest.setTimeout(10000);
+		var result = await page.evaluate(async () => {
+			var success = true;
+			var data = undefined;
+			betterFetcher.setDefaultTimeout(8000);
+			try {
+				data = await betterFetcher.get("https://httpstat.us/200?sleep=5300");
+			} catch(e) {
+				console.log(e);
+				success = false;
+			}
+			if (!data) {
+				success = false;
+			}
+			betterFetcher.setDefaultTimeout(5000);
+			return Promise.resolve(success);
+		});
+
+		expect(result).toBeTruthy();
+	});
+
+	it("Test setting default headers", async () => {
+		var result = await page.evaluate(async () => {
+			betterFetcher.setDefaultHeaders({testHeader1: "foo"}, "GET");
+			var headers = betterFetcher.getDefaultHeaders("GET");
+			if (headers.testHeader1 == "foo") {
+				return Promise.resolve(true);
+			} else {
+				return Promise.resolve(false);
+			}
+		});
+
+		expect(result).toBeTruthy();
+	})
+
 	it('Simple get request', async () => {
 		jest.setTimeout(30000);
 		var data = await page.evaluate(async () => {
