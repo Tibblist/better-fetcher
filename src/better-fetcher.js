@@ -2,6 +2,13 @@ var exports = (module.exports = {});
 var cacheName = '';
 var defaultTimeout = 5000;
 var credentials = 'same-origin';
+var defaultHeaders = {
+	GET: {},
+	POST: {},
+	PUT: {},
+	DELETE: {},
+	ALL: {}
+};
 
 exports.setCacheName = function(name) {
 	cacheName = name;
@@ -19,12 +26,20 @@ exports.getDefaultTimeOut = function() {
 	return defaultTimeout;
 };
 
-exports.setDefaultCredentialPolicy = function(mode) {
-	credentialPolicy = mode;
+exports.setDefaultCredentialsPolicy = function(mode) {
+	credentialsPolicy = mode;
 };
 
-exports.getDefaultCredentialPolicy = function() {
-	return credentialPolicy;
+exports.getDefaultCredentialsPolicy = function() {
+	return credentialsPolicy;
+};
+
+exports.setDefaultHeaders = function(headers, type) {
+	defaultHeaders[type] = headers;
+};
+
+exports.getDefaultHeaders = function(type) {
+	return defaultHeaders[type];
 };
 
 /*
@@ -46,7 +61,7 @@ exports.get = function(url, options = {}, callback) {
 	var networkDataReceived = false;
 	var cacheResponse = {};
 
-	options = checkDefaults(options);
+	options = checkDefaults(options, 'GET');
 
 	// fetch fresh data
 	var networkCall = timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init))
@@ -67,7 +82,7 @@ init - init to pass through to fetch
 Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options) {
-	options = prepareData(data, options);
+	options = prepareData(data, options, 'POST');
 	options.init.method = 'POST';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
@@ -84,7 +99,7 @@ options:
 init - init to pass through to fetch
 */
 exports.put = function(url, data, options) {
-	options = prepareData(data, options);
+	options = prepareData(data, options, 'PUT');
 	options.init.method = 'PUT';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
@@ -97,7 +112,7 @@ exports.put = function(url, data, options) {
 };
 
 exports.delete = function(url, options) {
-	options = checkDefaults(options);
+	options = checkDefaults(options, 'DELETE');
 	options.init.method = 'DELETE';
 
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(handleResponse);
@@ -127,23 +142,34 @@ function checkCaches(url, options, callback) {
 	}
 }
 
-function prepareData(data, options) {
-	options = checkDefaults(options);
+function prepareData(data, options, type) {
+	options = checkDefaults(options, type);
 	if (isObject(data)) {
 		data = JSON.stringify(data);
 		options.init.headers = {
-			'Content-type': 'application/json; charset=UTF-8'
+			'Content-type': 'application/json'
 		};
 	}
 	options.init.body = data;
 	return options;
 }
 
-function checkDefaults(options) {
+function checkDefaults(options, type) {
 	if (!options) options = {};
 	if (!options.init) options.init = {};
 	if (!options.init.credentials) options = changeCredentials(options);
+	options = changeHeaders(options, type);
 
+	return options;
+}
+
+function changeHeaders(options, type) {
+	const header = {};
+	Object.keys(defaultHeaders.ALL).forEach((key) => (result[key] = defaultHeaders.ALL[key]));
+	Object.keys(defaultHeaders[type]).forEach((key) => (result[key] = defaultHeaders[type][key]));
+	Object.keys(options.init.header).forEach((key) => (result[key] = options.init.header[key]));
+
+	options.init.header = header;
 	return options;
 }
 
