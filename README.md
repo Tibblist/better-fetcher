@@ -138,7 +138,7 @@ This function is called with returned data from either the cache or the network.
 
 **Warning**: Do not rely on it being called multiple times since there may not be any available cached data to return and/or the netowrk may return data identical to what is in the cache. In either case the callback function would only be called once.
 
- ## post/put(url, data, options)
+## post/put(url, data, options)
 Automatically adds method and serializes json objects to be sent in a post/put request. If sending a json object then automatically sets content-type to 'application/json'.
 ### url:
 The url to send the post request to.
