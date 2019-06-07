@@ -84,13 +84,7 @@ Takes in a string or a json object to stringify.
 exports.post = function(url, data, options) {
 	options = prepareData(data, options, 'POST');
 
-	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
-		if (!response.ok) {
-			throw response;
-		} else {
-			return response;
-		}
-	});
+	return timeoutFetch(url, options);
 };
 
 /*
@@ -100,18 +94,16 @@ init - init to pass through to fetch
 exports.put = function(url, data, options) {
 	options = prepareData(data, options, 'PUT');
 
-	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
-		if (!response.ok) {
-			throw response;
-		} else {
-			return response;
-		}
-	});
+	return timeoutFetch(url, options);
 };
 
 exports.delete = function(url, options) {
 	options = checkDefaults(options, 'DELETE');
 
+	return timeoutFetch(url, options);
+};
+
+function timeoutFetch (url, options) {
 	return timeoutPromise(options.timeout || defaultTimeout, fetch(url, options.init)).then(function(response) {
 		if (!response.ok) {
 			throw response;
@@ -119,7 +111,7 @@ exports.delete = function(url, options) {
 			return response;
 		}
 	});
-};
+}
 
 function checkCaches(url, options, callback) {
 	if (!options.matchAll) {
