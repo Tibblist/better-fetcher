@@ -92,7 +92,7 @@ describe('Testing get()', () => {
 		var result = await page.evaluate(async () => {
 			var success = true;
 			var data = undefined;
-			betterFetcher.setDefaultTimeout(8000);
+			betterFetcher.setDefaultTimeout(10000);
 			try {
 				data = await betterFetcher.get("https://httpstat.us/200?sleep=5300");
 			} catch(e) {
