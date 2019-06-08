@@ -1,8 +1,8 @@
 {
   "name": "better-fetcher",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "A library to extend fetch in a similar manner to existing libraries for xhr requests. Including some features exclusive to using fetch.",
-  "main": "betterFetcher.min.js",
+  "main": "lib/betterFetcher.min.js",
   "scripts": {
     "build": "WEBPACK_ENV=build webpack",
     "test": "jest && nyc report --reporter=text-lcov > coverage.lcov && nyc report --reporter=html",
