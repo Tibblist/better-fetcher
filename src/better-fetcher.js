@@ -62,7 +62,8 @@ init - Pass through init object to fetch call manually.
 timeout - timeout (in ms) to set on the api call.
 handleCachedResponse - Manually specify a function to be used only for returned cached data.
 handleNetworkResponse - Manually specify a function to be used only for returned network data.
-useCache - Flag to check cache and return 
+useCache - Flag to check cache and return
+params - query parameters to pass in
 callback:
 The function to be called with data as it is received. Expect this function to be called multiple times given that it will likely first be called with cache data and then called with updated network data. 
 Do not rely on it being called twice however given that it won't be called a second time if network data returns first or cache data does not exist
@@ -71,6 +72,7 @@ exports.get = function(url, options = {}, callback) {
   networkDataReceived = false;
 
   options = checkDefaults(options, "GET");
+  url = createUrl(url, options);
 
   // fetch fresh data
   var networkCall = timeoutPromise(
@@ -267,6 +269,26 @@ function handleResponseData(response, options) {
     default:
       return response;
   }
+}
+
+function createUrl(url, options) {
+	if(options.params) {
+		if(url[url.length-1] !== '/') {
+			url = url + '/';
+		}
+		url = url + createQueryString(options.params);
+	}
+	return url;
+}
+
+function createQueryString(params) {
+	var queryString = "?";
+	var keys = Object.keys(params);
+	for (var i = 0; i < keys.length; i++) {
+		if (i !== keys.length - 1) queryString += params[keys[i]] + "&";
+		else queryString += queryString += params[keys[i]];
+	}
+	return queryString;
 }
 
 function timeoutPromise(ms, promise) {
