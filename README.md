@@ -85,7 +85,14 @@ betterFetcher
     console.log(error);
   });
 ```
-
+Sending cookies with requests:
+```js
+	betterFetcher.setDefaultCredentialsPolicy("same-origin");
+	betterFetcher.get("MY PROTECTED URL")
+	  .then(response => response.json())
+	  .then(function(data) {console.log(data)});
+	  .catch(function(error) {console.log(error)});
+```
 # Documentation:
 
 ## Options
