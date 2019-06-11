@@ -5,9 +5,9 @@ describe("Testing get()", () => {
   beforeAll(async () => {
     await page.goto(PATH, { waitUntil: "load" });
     page.on("console", msg => {
-      console.log(
+      /*console.log(
         msg.text() + "\n" + msg.location().url + ":" + msg.location().lineNumber
-      );
+      );*/
     });
     page.evaluate(function() {
       window.fetchAndCache = async function fetchAndCache(URL, init) {
@@ -50,69 +50,6 @@ describe("Testing get()", () => {
     });
     expect(data.length).toBe(2);
     expect(data[0].title === data[1].title);
-  });
-
-  it("Default timeout test", async () => {
-    jest.setTimeout(10000);
-    var result = await page.evaluate(async () => {
-      var success = false;
-      var data = undefined;
-      try {
-        data = await betterFetcher.get("https://httpstat.us/200?sleep=5300");
-      } catch (e) {
-        success = true;
-      }
-      if (data) {
-        success = false;
-      }
-      return Promise.resolve(success);
-    });
-
-    expect(result).toBeTruthy();
-  });
-
-  it("Custom timeout test", async () => {
-    jest.setTimeout(10000);
-    var result = await page.evaluate(async () => {
-      var success = true;
-      var data = undefined;
-      try {
-        data = await betterFetcher.get("https://httpstat.us/200?sleep=5300", {
-          timeout: 10000
-        });
-      } catch (e) {
-        console.log(e);
-        success = false;
-      }
-      if (!data) {
-        success = false;
-      }
-      return Promise.resolve(success);
-    });
-
-    expect(result).toBeTruthy();
-  });
-
-  it("Set default time test", async () => {
-    jest.setTimeout(10000);
-    var result = await page.evaluate(async () => {
-      var success = true;
-      var data = undefined;
-      betterFetcher.setDefaultTimeout(10000);
-      try {
-        data = await betterFetcher.get("https://httpstat.us/200?sleep=5300");
-      } catch (e) {
-        console.log(e);
-        success = false;
-      }
-      if (!data) {
-        success = false;
-      }
-      betterFetcher.setDefaultTimeout(5000);
-      return Promise.resolve(success);
-    });
-
-    expect(result).toBeTruthy();
   });
 
   it("Test setting default headers", async () => {
@@ -210,6 +147,89 @@ describe("Testing get()", () => {
         });
       if (data) {
         success = false;
+      }
+      return Promise.resolve(success);
+    });
+    if (!testPassed) {
+      throw Error("No error generated or Improper error generated");
+    }
+  });
+
+  it("Test getting empty string", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      var data;
+
+      data = await betterFetcher.get("").catch(function(error) {
+        console.log("Blank url error found");
+        success = false;
+      });
+      if (data) {
+        success = true;
+      }
+      return Promise.resolve(success);
+    });
+    if (!testPassed) {
+      throw Error("No error generated or Improper error generated");
+    }
+  });
+
+  it("Test setting invalid credentials", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      try {
+        betterFetcher.setDefaultCredentialPolicy("BAD POLICY");
+      } catch (e) {
+        success = true;
+      }
+      var response = await betterFetcher.get(
+        "https://jsonplaceholder.typicode.com/users/1"
+      );
+      if (!response) {
+        success = false;
+      }
+      data = await response.json();
+      if (data.name !== "Leanne Graham") success = false;
+      return Promise.resolve(success);
+    });
+
+    expect(testPassed).toBeTruthy();
+  });
+
+  it("Test no url", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      var response = undefined;
+      try {
+        response = await betterFetcher.get();
+      } catch (error) {
+        console.log(error);
+        success = true;
+      }
+      if (response) {
+        success = false;
+      }
+      return Promise.resolve(success);
+    });
+    if (!testPassed) {
+      throw Error("No error generated or Improper error generated");
+    }
+  });
+
+  it("Test getting invalid url", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      var data;
+
+      data = await betterFetcher
+        .get("http://bob.com/INVALID URL")
+        .catch(function(error) {
+          console.log("Blank url error found");
+          success = true;
+        });
+      if (data) {
+        success = false;
+        debugger;
       }
       return Promise.resolve(success);
     });

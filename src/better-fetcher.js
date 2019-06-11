@@ -21,6 +21,7 @@ exports.getCacheName = function() {
 };
 
 exports.setDefaultTimeout = function(ms) {
+  if (isNaN(ms)) throw new Error("Cannot set timeout to be a non-number");
   defaultTimeout = ms;
 };
 
@@ -29,6 +30,8 @@ exports.getDefaultTimeout = function() {
 };
 
 exports.setDefaultCredentialsPolicy = function(mode) {
+  if (mode !== "omit" && mode !== "same-origin" && mode !== "include")
+    throw new Error("Attempting to set invalid credential policy: " + mode);
   defaultCredentials = mode;
 };
 
@@ -45,6 +48,14 @@ exports.getDefaultHeaders = function(type) {
 };
 
 exports.setDefaultDataType = function(type) {
+  if (
+    type !== "arrayBuffer" &&
+    type !== "blob" &&
+    type !== "formData" &&
+    type !== "json" &&
+    type !== "text"
+  )
+    throw new Error("Attempting to set dataType to invalid type: " + type);
   defaultDataType = type;
 };
 
@@ -69,6 +80,9 @@ The function to be called with data as it is received. Expect this function to b
 Do not rely on it being called twice however given that it won't be called a second time if network data returns first or cache data does not exist
 */
 exports.get = function(url, options = {}, callback) {
+  if (url === undefined) {
+    return Promise.reject(new Error("Missing url parameter in get request"));
+  }
   networkDataReceived = false;
 
   options = checkDefaults(options, "GET");
@@ -272,23 +286,23 @@ function handleResponseData(response, options) {
 }
 
 function createUrl(url, options) {
-	if(options.params) {
-		if(url[url.length-1] !== '/') {
-			url = url + '/';
-		}
-		url = url + createQueryString(options.params);
-	}
-	return url;
+  if (options.params) {
+    if (url[url.length - 1] !== "/") {
+      url = url + "/";
+    }
+    url = url + createQueryString(options.params);
+  }
+  return url;
 }
 
 function createQueryString(params) {
-	var queryString = "?";
-	var keys = Object.keys(params);
-	for (var i = 0; i < keys.length; i++) {
-		if (i !== keys.length - 1) queryString += params[keys[i]] + "&";
-		else queryString += queryString += params[keys[i]];
-	}
-	return queryString;
+  var queryString = "?";
+  var keys = Object.keys(params);
+  for (var i = 0; i < keys.length; i++) {
+    if (i !== keys.length - 1) queryString += params[keys[i]] + "&";
+    else queryString += queryString += params[keys[i]];
+  }
+  return queryString;
 }
 
 function timeoutPromise(ms, promise) {
