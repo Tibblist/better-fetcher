@@ -77,6 +77,9 @@ exports.get = function(url, options = {}, callback) {
   if (url === undefined) {
     return Promise.reject(new Error("Missing url parameter in get request"));
   }
+  if (options.mock) {
+    return options.mock;
+  }
   networkDataReceived = false;
 
   options = checkDefaults(options, "GET");
@@ -111,6 +114,7 @@ Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options) {
   options = prepareData(data, options, "POST");
+  url = createUrl(url, options);
 
   return timeoutFetch(url, options);
 };
@@ -121,12 +125,14 @@ init - init to pass through to fetch
 */
 exports.put = function(url, data, options) {
   options = prepareData(data, options, "PUT");
+  url = createUrl(url, options);
 
   return timeoutFetch(url, options);
 };
 
 exports.delete = function(url, options) {
   options = checkDefaults(options, "DELETE");
+  url = createUrl(url, options);
 
   return timeoutFetch(url, options);
 };

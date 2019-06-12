@@ -85,14 +85,17 @@ betterFetcher
     console.log(error);
   });
 ```
+
 Sending cookies with requests:
+
 ```js
-	betterFetcher.setDefaultCredentialsPolicy("same-origin");
-	betterFetcher.get("MY PROTECTED URL")
-	  .then(response => response.json())
-	  .then(function(data) {console.log(data)});
-	  .catch(function(error) {console.log(error)});
+  betterFetcher.setDefaultCredentialsPolicy("same-origin");
+  betterFetcher.get("MY PROTECTED URL")
+    .then(response => response.json())
+    .then(function(data) {console.log(data)});
+    .catch(function(error) {console.log(error)});
 ```
+
 # Documentation:
 
 ## Options
@@ -101,6 +104,20 @@ These are universal options that can be specified for any method that accepts an
 
 - **init**: You can use this to manually pass through an init object to the fetch call. This follows the same api/documentation as is specified [Here](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
 - **timeout**: This is the time (in ms) before the fetch call will timeout. This will either abort the fetch call if browser supports it, or just simply return a timeout error if the browser doesn't support abortController yet.
+- **mock**: Set this to a json object or Promise that will be returned as a result of the call, useful for testing.
+- **params**: Set this to a json array of parameters that will be added to the url request string.
+
+  Example:
+
+  ```js
+  //This will get MYURL.com/?username=test&password=123
+  betterFetcher.get("MYURL.com", {
+    params: {
+      username: "Test",
+      password: "123"
+    }
+  });
+  ```
 
 ## get(url, options, callback)
 
