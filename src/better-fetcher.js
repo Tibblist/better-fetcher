@@ -94,10 +94,7 @@ init - init to pass through to fetch
 Takes in a string or a json object to stringify.
 */
 exports.post = function(url, data, options = defaultOptions) {
-  options = prepareData(data, options, "POST");
-  url = createUrl(url, options);
-
-  return timeoutFetch(url, options);
+  return timeoutFetch(url, options, "POST");
 };
 
 /*
@@ -105,20 +102,16 @@ options:
 init - init to pass through to fetch
 */
 exports.put = function(url, data, options = defaultOptions) {
-  options = prepareData(data, options, "PUT");
-  url = createUrl(url, options);
-
-  return timeoutFetch(url, options);
+  return timeoutFetch(url, options, "PUT");
 };
 
 exports.delete = function(url, options = defaultOptions) {
-  options = checkDefaults(options, "DELETE");
-  url = createUrl(url, options);
-
-  return timeoutFetch(url, options);
+  return timeoutFetch(url, options, "DELETE");
 };
 
-function timeoutFetch(url, options) {
+function timeoutFetch(url, options, type) {
+  options = checkDefaults(options, type);
+  url = createUrl(url, options);
   return timeoutPromise(options.timeout, fetch(url, options.init)).then(
     function(response) {
       if (!response.ok) {
