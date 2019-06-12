@@ -8,37 +8,38 @@
 	}
 */
 
-var webpack = require('webpack');
-var path = require('path');
-var libraryName = 'betterFetcher';
-var outputFile = libraryName + '.js';
+var webpack = require("webpack");
+var path = require("path");
+var libraryName = "betterFetcher";
+var outputFile = libraryName + ".js";
 
 var env = process.env.WEBPACK_ENV;
 
-var outputFile, mode = "development";
+var outputFile,
+  mode = "development";
 
-if (env === 'build') {
-	outputFile = libraryName + '.min.js';
-	mode = "production"
+if (env === "build") {
+  outputFile = libraryName + ".min.js";
+  mode = "production";
 } else {
-  outputFile = libraryName + '.js';
+  outputFile = libraryName + ".js";
 }
 
 var config = {
-  entry: __dirname + '/src/better-fetcher.js',
-  devtool: 'source-map',
+  entry: __dirname + "/src/better-fetcher.js",
+  devtool: "source-map",
   output: {
-    path: __dirname + '/lib',
+    path: __dirname + "/lib",
     filename: outputFile,
     library: libraryName,
-    libraryTarget: 'umd',
+    libraryTarget: "umd",
     umdNamedDefine: true
   },
   module: {
     rules: [
       {
         test: /(\\.jsx|\\.js)$/,
-        loader: 'babel',
+        loader: "babel",
         exclude: /(node_modules|bower_components)/
       },
       {
@@ -48,7 +49,7 @@ var config = {
       }
     ]
   },
-	mode: mode
+  mode: mode
 };
 
 module.exports = config;

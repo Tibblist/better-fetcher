@@ -82,8 +82,6 @@ exports.get = function(url, options = {}, callback) {
   options = checkDefaults(options, "GET");
   if (options.dataType && !checkValidType(options.dataType))
     return Promise.reject(new Error("Invalid data type"));
-  if (options.credentials && !checkIfValidCredentials(options.dataType))
-    return Promise.reject(new Error("Invalid credential policy set"));
   url = createUrl(url, options);
 
   // fetch fresh data
@@ -231,21 +229,25 @@ function handleResponse(response) {
 
 function handleNetworkResponse(response, options, callback) {
   if (!options.useCache) {
-    return handleResponseData(response, options);
+    return parseResponseData(response, options);
   } else {
     if (!options.dataType) {
       if (options.handleNetworkResponse instanceof Function)
         options.handleNetworkResponse(response);
       else callback(response);
     } else {
-      handleResponseData(response, options).then(function(data) {
-        networkDataReceived = true;
-        if (options.handleNetworkResponse instanceof Function)
-          options.handleNetworkResponse(data);
-        else callback(data); ///Implement object comparison?
-      });
+      return handleNetworkResponseData(response, options, callback);
     }
   }
+}
+
+function handleNetworkResponseData(response, options, callback) {
+  parseResponseData(response, options).then(function(data) {
+    networkDataReceived = true;
+    if (options.handleNetworkResponse instanceof Function)
+      options.handleNetworkResponse(data);
+    else callback(data); ///Implement object comparison?
+  });
 }
 
 function handleCacheResponse(response, options, callback) {
@@ -258,15 +260,19 @@ function handleCacheResponse(response, options, callback) {
       options.handleCachedResponse(response);
     else callback(response); ///Implement object comparison?
   } else {
-    return handleResponseData(response, options).then(function(data) {
-      if (options.handleCachedResponse instanceof Function)
-        options.handleCachedResponse(data);
-      else callback(data); ///Implement object comparison?
-    });
+    return handleCacheResponseData(response, options, callback);
   }
 }
 
-function handleResponseData(response, options) {
+function handleCacheResponseData(response, options, callback) {
+  return parseResponseData(response, options).then(function(data) {
+    if (options.handleCachedResponse instanceof Function)
+      options.handleCachedResponse(data);
+    else callback(data); ///Implement object comparison?
+  });
+}
+
+function parseResponseData(response, options) {
   switch (options.dataType) {
     case "json":
       return response.json();
