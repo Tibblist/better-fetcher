@@ -3,10 +3,12 @@
   "version": "1.0.11",
   "description": "A library to extend fetch in a similar manner to existing libraries for xhr requests. Including some features exclusive to using fetch.",
   "main": "lib/betterFetcher.min.js",
+  "unpkg": "lib/betterFetcher.min.js",
   "scripts": {
     "build": "WEBPACK_ENV=build webpack",
-    "test": "jest && nyc report --reporter=text-lcov > coverage.lcov && nyc report --reporter=html",
-    "serve": "node tests/server.js"
+    "test": "jest --detectOpenHandles && nyc report --reporter=text-lcov > coverage.lcov && nyc report --reporter=html",
+    "serve": "node tests/server.js",
+    "prepublishOnly": "npm test && npm build"
   },
   "repository": {
     "type": "git",

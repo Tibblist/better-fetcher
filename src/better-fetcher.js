@@ -1,7 +1,5 @@
 var exports = (module.exports = {});
 var cacheName = "";
-var defaultTimeout = 5000;
-var defaultCredentials = "same-origin";
 var defaultHeaders = {
   GET: {},
   POST: {},
@@ -9,8 +7,11 @@ var defaultHeaders = {
   DELETE: {},
   ALL: {}
 };
-var defaultDataType = "";
 var networkDataReceived = false;
+var defaultOptions = {
+  timeout: 5000,
+  init: { credentials: "same-origin" }
+};
 
 exports.setCacheName = function(name) {
   cacheName = name;
@@ -18,25 +19,6 @@ exports.setCacheName = function(name) {
 
 exports.getCacheName = function() {
   return cacheName;
-};
-
-exports.setDefaultTimeout = function(ms) {
-  if (isNaN(ms)) throw new Error("Cannot set timeout to be a non-number");
-  defaultTimeout = ms;
-};
-
-exports.getDefaultTimeout = function() {
-  return defaultTimeout;
-};
-
-exports.setDefaultCredentialsPolicy = function(mode) {
-  if (!checkIfValidCredentials(mode))
-    throw new Error("Attempting to set invalid credential policy: " + mode);
-  defaultCredentials = mode;
-};
-
-exports.getDefaultCredentialsPolicy = function() {
-  return defaultCredentials;
 };
 
 exports.setDefaultHeaders = function(headers, type) {
@@ -47,14 +29,16 @@ exports.getDefaultHeaders = function(type) {
   return defaultHeaders[type];
 };
 
-exports.setDefaultDataType = function(type) {
-  if (!checkValidType(type))
-    throw new Error("Attempting to set dataType to invalid type: " + type);
-  defaultDataType = type;
-};
-
-exports.getDefaultDataType = function() {
-  return defaultDataType;
+exports.setDefaultOptions = function(options) {
+  if (options.dataType && !checkValidType(options.dataType))
+    throw new Error("Attempting to set invalid data type");
+  if (
+    options.init &&
+    options.init.credentials &&
+    !checkIfValidCredentials(options.init.credentials)
+  )
+    throw new Error("Attempting to set invalid credential policy");
+  defaultOptions = options;
 };
 
 /*
@@ -73,7 +57,7 @@ callback:
 The function to be called with data as it is received. Expect this function to be called multiple times given that it will likely first be called with cache data and then called with updated network data. 
 Do not rely on it being called twice however given that it won't be called a second time if network data returns first or cache data does not exist
 */
-exports.get = function(url, options = {}, callback) {
+exports.get = function(url, options = defaultOptions, callback) {
   if (url === undefined) {
     return Promise.reject(new Error("Missing url parameter in get request"));
   }
@@ -88,10 +72,7 @@ exports.get = function(url, options = {}, callback) {
   url = createUrl(url, options);
 
   // fetch fresh data
-  var networkCall = timeoutPromise(
-    options.timeout || defaultTimeout,
-    fetch(url, options.init)
-  )
+  var networkCall = timeoutPromise(options.timeout, fetch(url, options.init))
     .then(handleResponse)
     .then(function(response) {
       networkDataReceived = true;
@@ -112,7 +93,7 @@ options:
 init - init to pass through to fetch
 Takes in a string or a json object to stringify.
 */
-exports.post = function(url, data, options) {
+exports.post = function(url, data, options = defaultOptions) {
   options = prepareData(data, options, "POST");
   url = createUrl(url, options);
 
@@ -123,14 +104,14 @@ exports.post = function(url, data, options) {
 options:
 init - init to pass through to fetch
 */
-exports.put = function(url, data, options) {
+exports.put = function(url, data, options = defaultOptions) {
   options = prepareData(data, options, "PUT");
   url = createUrl(url, options);
 
   return timeoutFetch(url, options);
 };
 
-exports.delete = function(url, options) {
+exports.delete = function(url, options = defaultOptions) {
   options = checkDefaults(options, "DELETE");
   url = createUrl(url, options);
 
@@ -138,16 +119,15 @@ exports.delete = function(url, options) {
 };
 
 function timeoutFetch(url, options) {
-  return timeoutPromise(
-    options.timeout || defaultTimeout,
-    fetch(url, options.init)
-  ).then(function(response) {
-    if (!response.ok) {
-      throw response;
-    } else {
-      return response;
+  return timeoutPromise(options.timeout, fetch(url, options.init)).then(
+    function(response) {
+      if (!response.ok) {
+        throw response;
+      } else {
+        return response;
+      }
     }
-  });
+  );
 }
 
 function checkCaches(url, options, callback) {
@@ -178,14 +158,19 @@ function prepareData(data, options, type) {
 }
 
 function checkDefaults(options, type) {
-  if (!options) options = {};
-  if (!options.init) options.init = {};
-  if (!options.init.headers) options.init.headers = {};
-  if (!options.init.method) options.init.method = type;
-  if (!options.init.defaultCredentials) options = changeCredentials(options);
-  options = changeHeaders(options, type);
+  var newOptions = {};
 
-  return options;
+  Object.keys(defaultOptions).forEach(
+    key => (newOptions[key] = defaultOptions[key])
+  );
+  Object.keys(options).forEach(key => (newOptions[key] = options[key]));
+
+  if (!newOptions.init) newOptions.init = { method: type };
+  else newOptions.init.method = type;
+  if (!newOptions.init.headers) newOptions.init.headers = {};
+  newOptions = changeHeaders(newOptions, type);
+
+  return newOptions;
 }
 
 function changeHeaders(options, type) {
@@ -213,11 +198,6 @@ function changeHeaders(options, type) {
     options.init.headers = header;
   }
 
-  return options;
-}
-
-function changeCredentials(options) {
-  options.init.defaultCredentials = defaultCredentials;
   return options;
 }
 

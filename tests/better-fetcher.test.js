@@ -22,10 +22,15 @@ describe("Testing get()", () => {
         // as well as the cache consuming the response, we need
         // to clone it so we have two streams.
         var responseToCache = response.clone();
-
         var cache = await caches.open("test-cache-v1");
-        console.log("Caching repsponse to: " + URL);
-        await cache.put(URL, responseToCache);
+        console.log("Caching response to: " + URL);
+        try {
+          await cache.put(URL, responseToCache);
+        } catch (e) {
+          console.log(e.name);
+          console.log(e.message);
+          debugger;
+        }
         console.log("Response cached");
         return response;
       };
@@ -199,7 +204,9 @@ describe("Testing get()", () => {
     var testPassed = await page.evaluate(async () => {
       var success = false;
       try {
-        betterFetcher.setDefaultCredentialPolicy("BAD POLICY");
+        betterFetcher.setDefaultOptions({
+          init: { credentials: "BAD POLICY" }
+        });
       } catch (e) {
         success = true;
       }
@@ -221,7 +228,7 @@ describe("Testing get()", () => {
     var testPassed = await page.evaluate(async () => {
       var success = false;
       try {
-        betterFetcher.setDefaultDataType("INVALID TYPE");
+        betterFetcher.setDefaultOptions({ dataType: "INVALID TYPE" });
       } catch (e) {
         success = true;
       }
@@ -312,6 +319,7 @@ describe("Testing post", () => {
   afterAll(async () => {
     const jsCoverage = await page.coverage.stopJSCoverage();
     pti.write(jsCoverage);
+    page.evaluate(async () => {});
   });
 
   it("Simple POST test", async () => {

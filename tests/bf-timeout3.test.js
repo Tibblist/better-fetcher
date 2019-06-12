@@ -13,9 +13,9 @@ describe("Timeout tests", () => {
     var result = await page.evaluate(async () => {
       var success = true;
       var data = undefined;
-      betterFetcher.setDefaultTimeout(10000);
+      betterFetcher.setDefaultOptions({ timeout: 10000 });
       try {
-        data = await betterFetcher.get("https://httpstat.us/200");
+        data = await betterFetcher.get("https://httpstat.us/200?sleep=500");
       } catch (e) {
         console.log(e);
         success = false;
@@ -23,7 +23,7 @@ describe("Timeout tests", () => {
       if (!data) {
         success = false;
       }
-      betterFetcher.setDefaultTimeout(5000);
+      betterFetcher.setDefaultOptions({ timeout: 5000 });
       return Promise.resolve(success);
     });
 

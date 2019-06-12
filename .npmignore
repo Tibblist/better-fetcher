@@ -68,4 +68,13 @@ tests/
 .travis.yml
 
 # jest puppeteer config
-.config.js
+*.config.js
+
+#non-minified source
+src/
+
+#source map
+.min.js.map
+
+#eslint config
+.eslintrc.js
