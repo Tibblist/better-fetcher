@@ -30,7 +30,7 @@ exports.getDefaultTimeout = function() {
 };
 
 exports.setDefaultCredentialsPolicy = function(mode) {
-  if (mode !== "omit" && mode !== "same-origin" && mode !== "include")
+  if (!checkIfValidCredentials(mode))
     throw new Error("Attempting to set invalid credential policy: " + mode);
   defaultCredentials = mode;
 };
@@ -48,13 +48,7 @@ exports.getDefaultHeaders = function(type) {
 };
 
 exports.setDefaultDataType = function(type) {
-  if (
-    type !== "arrayBuffer" &&
-    type !== "blob" &&
-    type !== "formData" &&
-    type !== "json" &&
-    type !== "text"
-  )
+  if (!checkValidType(type))
     throw new Error("Attempting to set dataType to invalid type: " + type);
   defaultDataType = type;
 };
@@ -86,6 +80,10 @@ exports.get = function(url, options = {}, callback) {
   networkDataReceived = false;
 
   options = checkDefaults(options, "GET");
+  if (options.dataType && !checkValidType(options.dataType))
+    return Promise.reject(new Error("Invalid data type"));
+  if (options.credentials && !checkIfValidCredentials(options.dataType))
+    return Promise.reject(new Error("Invalid credential policy set"));
   url = createUrl(url, options);
 
   // fetch fresh data
@@ -303,6 +301,22 @@ function createQueryString(params) {
     else queryString += queryString += params[keys[i]];
   }
   return queryString;
+}
+
+function checkValidType(type) {
+  if (
+    type !== "arrayBuffer" &&
+    type !== "blob" &&
+    type !== "formData" &&
+    type !== "json" &&
+    type !== "text"
+  )
+    return false;
+  else return true;
+}
+
+function checkIfValidCredentials(mode) {
+  return mode === "omit" || mode === "same-origin" || mode === "include";
 }
 
 function timeoutPromise(ms, promise) {

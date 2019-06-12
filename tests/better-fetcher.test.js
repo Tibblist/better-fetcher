@@ -134,6 +134,27 @@ describe("Testing get()", () => {
     }
   });
 
+  it("Test single parameter", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      var data;
+      try {
+        data = await betterFetcher.get("http://urlecho.appspot.com/echo", {
+          params: { status: 400 }
+        });
+      } catch (error) {
+        success = true;
+      }
+      if (data) {
+        success = false;
+      }
+      return Promise.resolve(success);
+    });
+    if (!testPassed) {
+      throw Error("No error generated or Improper error generated");
+    }
+  });
+
   it("useCache network error test", async () => {
     var testPassed = await page.evaluate(async () => {
       var success = false;
@@ -196,6 +217,46 @@ describe("Testing get()", () => {
     expect(testPassed).toBeTruthy();
   });
 
+  it("Test setting invalid default data type", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      try {
+        betterFetcher.setDefaultDataType("INVALID TYPE");
+      } catch (e) {
+        success = true;
+      }
+      var response = await betterFetcher.get(
+        "https://jsonplaceholder.typicode.com/users/1"
+      );
+      if (!response) {
+        success = false;
+      }
+      data = await response.json();
+      if (data.name !== "Leanne Graham") success = false;
+      return Promise.resolve(success);
+    });
+
+    expect(testPassed).toBeTruthy();
+  });
+
+  it("Test setting invalid data type", async () => {
+    var testPassed = await page.evaluate(async () => {
+      var success = false;
+      var response;
+      try {
+        response = await betterFetcher.get(
+          "https://jsonplaceholder.typicode.com/users/1",
+          { dataType: "INVALID TYPE" }
+        );
+      } catch (e) {
+        success = true;
+      }
+      return Promise.resolve(success);
+    });
+
+    expect(testPassed).toBeTruthy();
+  });
+
   it("Test no url", async () => {
     var testPassed = await page.evaluate(async () => {
       var success = false;
@@ -229,7 +290,6 @@ describe("Testing get()", () => {
         });
       if (data) {
         success = false;
-        debugger;
       }
       return Promise.resolve(success);
     });
