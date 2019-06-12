@@ -214,15 +214,14 @@ function handleResponse(response) {
 function handleNetworkResponse(response, options, callback) {
   if (!options.useCache) {
     return parseResponseData(response, options);
-  } else {
-    if (!options.dataType) {
-      if (options.handleNetworkResponse instanceof Function)
-        options.handleNetworkResponse(response);
-      else callback(response);
-    } else {
-      return handleNetworkResponseData(response, options, callback);
-    }
   }
+  if (!options.dataType) {
+    if (options.handleNetworkResponse instanceof Function)
+      options.handleNetworkResponse(response);
+    else callback(response);
+    return;
+  }
+  return handleNetworkResponseData(response, options, callback);
 }
 
 function handleNetworkResponseData(response, options, callback) {
