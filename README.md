@@ -213,3 +213,5 @@ Use this to set the default request timeout period in ms.
 **Q**: I am getting an error when doing get().then()?
 
 **A**: Check if you are setting useCache in your options. If you are then you must pass a callback function as the third parameter which will be called twice if there is a cache hit for the response and the network also returns data.
+
+edit: testing commit
