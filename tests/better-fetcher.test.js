@@ -84,6 +84,21 @@ describe("Testing get()", () => {
     expect(data.address.geo.lat).toBe("-37.3159");
   });
 
+  it("Simple get request promise chain", async () => {
+    jest.setTimeout(30000);
+    var data = await page.evaluate(async () => {
+      var data = await betterFetcher
+        .get("https://jsonplaceholder.typicode.com/users/1")
+        .then(function(response) {
+          return response.json();
+        });
+      return data;
+    });
+
+    expect(data.name).toBe("Leanne Graham");
+    expect(data.address.geo.lat).toBe("-37.3159");
+  });
+
   it("Custom cache handler", async () => {
     var result = await page.evaluate(async () => {
       var customHandlerRan = false;
@@ -317,6 +332,9 @@ describe("Testing post", () => {
   });
 
   afterAll(async () => {
+    await page.evaluate(async () => {
+      debugger;
+    });
     const jsCoverage = await page.coverage.stopJSCoverage();
     pti.write(jsCoverage);
     page.evaluate(async () => {});

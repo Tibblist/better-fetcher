@@ -5,6 +5,9 @@
 [![HitCount](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch.svg)](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch)
 [![dependencies](https://david-dm.org/Tibblist/better-fetch.svg)](https://david-dm.org/Tibblist/better-fetch)
 [![Maintainability](https://api.codeclimate.com/v1/badges/18ae816bedeac6004eca/maintainability)](https://codeclimate.com/github/Tibblist/better-fetch/maintainability)
+[![Downloads](https://img.shields.io/npm/dm/better-fetcher.svg)](https://www.npmjs.com/package/better-fetcher)
+
+[![NPM](https://nodei.co/npm/better-fetcher.png?downloads=true)](https://www.npmjs.com/package/better-fetcher)
 
 # better-fetcher
 

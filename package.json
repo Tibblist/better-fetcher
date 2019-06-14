@@ -8,8 +8,8 @@
     "build": "WEBPACK_ENV=build webpack",
     "test": "jest --detectOpenHandles && nyc report --reporter=text-lcov > coverage.lcov && nyc report --reporter=html",
     "serve": "node tests/server.js",
-    "prepublishOnly": "npm test && npm build",
-    "push": "npm test && npm build && git push"
+    "prepublishOnly": "npm test && npm run build",
+    "push": "npm test && npm run build && git push"
   },
   "repository": {
     "type": "git",
