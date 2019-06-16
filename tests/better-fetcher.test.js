@@ -29,7 +29,6 @@ describe("Testing get()", () => {
         } catch (e) {
           console.log(e.name);
           console.log(e.message);
-          debugger;
         }
         console.log("Response cached");
         return response;
@@ -332,9 +331,9 @@ describe("Testing post", () => {
   });
 
   afterAll(async () => {
-    await page.evaluate(async () => {
+    /*await page.evaluate(async () => {
       debugger;
-    });
+    });*/
     const jsCoverage = await page.coverage.stopJSCoverage();
     pti.write(jsCoverage);
     page.evaluate(async () => {});
