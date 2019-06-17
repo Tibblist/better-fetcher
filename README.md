@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/Tibblist/better-fetcher.svg?branch=master)](https://travis-ci.org/Tibblist/better-fetcher)
 [![codecov](https://codecov.io/gh/Tibblist/better-fetch/branch/master/graph/badge.svg)](https://codecov.io/gh/Tibblist/better-fetch)
+[![install size](https://packagephobia.now.sh/badge?p=better-fetcher)](https://packagephobia.now.sh/result?p=better-fetcher)
 [![Known Vulnerabilities](https://snyk.io/test/github/Tibblist/better-fetch/badge.svg?targetFile=package.json)](https://snyk.io/test/github/Tibblist/better-fetch?targetFile=package.json)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![HitCount](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch.svg)](http://hits.dwyl.io/Tibblist/https://githubcom/Tibblist/better-fetch)
@@ -121,18 +122,22 @@ These are universal options that can be specified for any method that accepts an
     }
   });
   ```
+
 - **validator**: Set a custom validator to determine if a response is valid or not.
 
   Example:
 
   ```js
-  betterFetcher.get("MY URL", { validator: function(resp) {
-    return resp.status === 200
-  } }).catch(function(error) {
-    //Called if response status is not 200
-  })
+  betterFetcher
+    .get("MY URL", {
+      validator: function(resp) {
+        return resp.status === 200;
+      }
+    })
+    .catch(function(error) {
+      //Called if response status is not 200
+    });
   ```
-
 
 ## get(url, options, callback)
 
