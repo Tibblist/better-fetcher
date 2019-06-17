@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Tibblist/better-fetch.svg?branch=master)](https://travis-ci.org/Tibblist/better-fetch)
+[![Build Status](https://travis-ci.org/Tibblist/better-fetcher.svg?branch=master)](https://travis-ci.org/Tibblist/better-fetcher)
 [![codecov](https://codecov.io/gh/Tibblist/better-fetch/branch/master/graph/badge.svg)](https://codecov.io/gh/Tibblist/better-fetch)
 [![Known Vulnerabilities](https://snyk.io/test/github/Tibblist/better-fetch/badge.svg?targetFile=package.json)](https://snyk.io/test/github/Tibblist/better-fetch?targetFile=package.json)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
@@ -196,17 +196,9 @@ Use this method to set default headers that will automatically be combined with 
 
 ### getDefaultHeaders(type)
 
-### setDefaultCredentialsPolicy(mode)
+### setDefaultOptions(config)
 
-Use this method to set the default init.credentials for all requests. You can still manually override the default on a per request basis.
-
-### getDefaultCredentialsPolicy()
-
-### setDefaultTimeout(ms)
-
-Use this to set the default request timeout period in ms.
-
-### getDefaultTimeout()
+Use this method to set default options that will be passed to every request. These can be overridden still on a per request basis if you set something else in the options you pass in then it will override the defaults. Options that are specific to a type of request will only be passed to requests of that type if set as a default. Headers should be set via setDefaultHeaders since you can set headers to be default per request type if need be. Setting headers in the default config.init.headers will likely work in most cases but hasn't been thoroughly tested yet since it isn't desired behavior.
 
 # FAQ:
 
