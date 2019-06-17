@@ -123,6 +123,8 @@ exports.delete = function(url, options = defaultOptions) {
   return timeoutFetch(url, options);
 };
 
+exports.createUrl = createUrl;
+
 function timeoutFetch(url, options) {
   url = createUrl(url, options);
   return timeoutPromise(options.timeout, fetch(url, options.init)).then(

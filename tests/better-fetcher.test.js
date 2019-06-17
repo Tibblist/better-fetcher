@@ -164,6 +164,8 @@ describe("Testing get()", () => {
       } catch (error) {
         success = true;
       }
+      url = betterFetcher.createUrl("TEST.COM/", { params: { status: 400 } });
+      if (url !== "TEST.COM/?status=400") success = false;
       if (data) {
         success = false;
       }
