@@ -155,20 +155,13 @@ describe("Testing get()", () => {
 
   it("Test single parameter", async () => {
     var testPassed = await page.evaluate(async () => {
-      var success = false;
-      var data;
-      try {
-        data = await betterFetcher.get("http://urlecho.appspot.com/echo", {
-          params: { status: 400 }
-        });
-      } catch (error) {
-        success = true;
-      }
+      var success = true;
       url = betterFetcher.createUrl("TEST.COM/", { params: { status: 400 } });
       if (url !== "TEST.COM/?status=400") success = false;
-      if (data) {
-        success = false;
-      }
+      url = betterFetcher.createUrl("TEST.COM/", {
+        params: { status: 400, something: "more" }
+      });
+      if (url !== "TEST.COM/?status=400&something=more") success = false;
       return Promise.resolve(success);
     });
     if (!testPassed) {
