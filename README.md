@@ -121,6 +121,18 @@ These are universal options that can be specified for any method that accepts an
     }
   });
   ```
+- **validator**: Set a custom validator to determine if a response is valid or not.
+
+  Example:
+
+  ```js
+  betterFetcher.get("MY URL", { validator: function(resp) {
+    return resp.status === 200
+  } }).catch(function(error) {
+    //Called if response status is not 200
+  })
+  ```
+
 
 ## get(url, options, callback)
 

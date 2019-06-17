@@ -81,7 +81,7 @@ exports.get = function(url, options = defaultOptions, callback) {
   // fetch fresh data
   var networkCall = timeoutPromise(options.timeout, fetch(url, options.init))
     .then(function(response) {
-      handleResponse(response, options.validator);
+      return handleResponse(response, options.validator);
     })
     .then(function(response) {
       return handleNetworkResponse(response, options, callback);
