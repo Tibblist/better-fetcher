@@ -16,6 +16,8 @@ better-fetcher is a library to extend fetch and make it more in line with typica
 
 **Note:** This library does not cache anything itself. It will optionally check the cache for data for a request but won't store any new data it receives later in the cache, you need to use a service worker or some other method to cache all your fetch calls.
 
+If you have any questions, comments, or concerns feel free to reach out to me at tibblist@gmail.com. Feel free to submit a pull request as well if you find anything you can improve.
+
 # Features:
 
 - Implements simple wrappers for basic request types such as GET, PUT, POST and DELETE. (more coming soon)
