@@ -170,14 +170,12 @@ See the default options documentation for options that apply to all methods that
       {
         useLocalData: function(req) {
           if (req.url === "HTTP://www.MYJSONDATA.COM") {
-            return localStorage.get("MY DATA");
+            return JSON.parse(localStorage.get("MY DATA"));
           }
         }
       },
-      function(response) {
-        response.json().then(function(data) {
-          updatePageView(data);
-        });
+      function(jsonObject) {
+        updatePageView(jsonObject); //Will be called twice, once with localStorage returned object, then again if network call succeeds and returns json data.
       }
     )
     .catch(function(error) {
