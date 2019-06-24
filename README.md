@@ -12,7 +12,7 @@
 
 # better-fetcher
 
-better-fetcher is a library to extend fetch and make it more in line with typical libraries that use regular httprequest like axios/superagent. It implements the standard get/put/post/delete calls in a similar style but instead uses fetch to make these calls for better compatibility with service workers and taking advantage of many other improvements in fetch like response streaming. It also addresses a few of the shortcomings with fetch such as no timeout and returning ok from a 404/500 response. It also provides support for making PWA/offline apps by including a mechanism in the get request to instead specify a callback rather than a promise that will be called once with cache data if found and then a network request will be sent out and the callback will be called again with recently obtained data from the network if the data differs from what was cached.
+better-fetcher is a library to extend fetch and make it more in line with typical libraries that use regular httprequest like axios/superagent. It implements the standard get/put/post/delete calls in a similar style but instead uses fetch to make these calls for better compatibility with service workers and taking advantage of many other improvements in fetch like response streaming. It also addresses a few of the shortcomings with fetch such as no timeout and returning ok from a 404/500 response. It also provides support for making PWA/offline apps by including a mechanism in the get request to instead specify a callback rather than a promise that will be called once with cache data if found and then a network request will be sent out and the callback will be called again with recently obtained data from the network if the data differs from what was cached. You can also specify a local data source such as localStorage or indexedDB to retrieve data from before the call completes.
 
 **Note:** This library does not cache anything itself. It will optionally check the cache for data for a request but won't store any new data it receives later in the cache, you need to use a service worker or some other method to cache all your fetch calls.
 
@@ -21,6 +21,8 @@ If you have any questions, comments, or concerns feel free to reach out to me at
 # Features:
 
 - Implements simple wrappers for basic request types such as GET, PUT, POST and DELETE. (more coming soon)
+
+- Automatically reads response headers and parses/streams data into correct type (can be overridden)
 
 - Adds support for some features missing by fetch such as request timeouts and catching 4xx/5xx errors instead of just returning a response.
 
@@ -155,6 +157,32 @@ See the default options documentation for options that apply to all methods that
 
 - **dataType**: This will wait for the response stream to end and parse it into the data type specified. Possible options are arrayBuffer, blob, formData, json, text.
 
+- **useLocalData**: Set this as a function that will be used to pull data from a local source and then returned data will be passed into the specified callback function. The function will be called with a fetch api [request object](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request) if you want to use generic function that pulls local data based on the request parameters.
+
+  Example:
+
+  ```js
+  betterFetcher
+    .get(
+      "MY URL",
+      {
+        useLocalData: function(req) {
+          if (req.url === "HTTP://www.MYJSONDATA.COM") {
+            return localStorage.get("MY DATA");
+          }
+        }
+      },
+      function(response) {
+        response.json().then(function(data) {
+          updatePageView(data);
+        });
+      }
+    )
+    .catch(function(error) {
+      logNetworkError(error);
+    });
+  ```
+
 - **useCache**: Set this to be true to first return data from cache if it exists (via the callback that must also be specified this will NOT return a promise), and then pull down network data which will also be passed to the callback function after. You should handle caching the new data that gets pulled down with whatever method you want to use in your service worker as this method will only send the network data to the callback function and will not update the cache. There is also a check to see if the data differs from what is currently in the cache and the callback won't be called a second time if the data isn't different from what was cached.
 
 If you want to handle network errors when useCache is set then see the example below:
@@ -211,7 +239,7 @@ Sends a delete request to the specified url using the specified options. There a
 
 ### setDefaultHeaders(headers, type)
 
-Use this method to set default headers that will automatically be combined with the headers you specifically set in options.init.header for all requests of the specified type. Valid types are GET, POST, PUT, DELETE, ALL. The priority when merging headers will be ALL < (specific type) < options.init.header.
+Use this method to set default headers that will automatically be combined with the headers you specifically set in options.init.header for all requests of the specified type. Valid types are GET, POST, PUT, DELETE, ALL. The priority when merging headers will be ALL < (specific type) < options.init.headers.
 
 ### getDefaultHeaders(type)
 
@@ -224,5 +252,3 @@ Use this method to set default options that will be passed to every request. The
 **Q**: I am getting an error when doing get().then()?
 
 **A**: Check if you are setting useCache in your options. If you are then you must pass a callback function as the third parameter which will be called twice if there is a cache hit for the response and the network also returns data.
-
-edit: testing commit

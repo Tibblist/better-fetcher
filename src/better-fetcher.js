@@ -10,7 +10,8 @@ const {
   createUrl,
   timeoutPromise,
   checkDefaults,
-  prepareData
+  prepareData,
+  mergeObjects
 } = require("./utils");
 
 var exports = (module.exports = {});
@@ -24,7 +25,8 @@ var defaultHeaders = {
 };
 var defaultOptions = {
   timeout: 5000,
-  init: { credentials: "same-origin" }
+  init: { credentials: "same-origin" },
+  dataType: "auto"
 };
 
 exports.setCacheName = function(name) {
@@ -45,7 +47,7 @@ exports.getDefaultHeaders = function(type) {
 
 exports.setDefaultOptions = function(options) {
   verifyOptions(options);
-  defaultOptions = options;
+  defaultOptions = mergeObjects(options, defaultOptions);
 };
 
 /*
@@ -88,7 +90,9 @@ exports.get = function(url, options = defaultOptions, callback) {
     });
 
   // fetch cached data
-  if (options.useCache)
+  if (options.useLocalData instanceof Function)
+    callback(options.useLocalData(new Request(url, options.init)));
+  else if (options.useCache)
     checkCaches(url, options, callback).catch(function() {
       //Don't throw error on cache miss since this is expected behavior
     });

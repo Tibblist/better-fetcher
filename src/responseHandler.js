@@ -1,3 +1,4 @@
+const { resolveDataType } = require("./utils");
 var networkMap = new Map();
 var cacheMap = new Map();
 
@@ -20,7 +21,7 @@ exports.handleNetworkResponse = function(response, options, callback) {
   if (!options.useCache) {
     return parseResponseData(response, options);
   }
-  if (!options.dataType) {
+  if (options.dataType.toLowerCase() === "none") {
     setNetworkMap(options.url);
     if (options.handleNetworkResponse instanceof Function)
       options.handleNetworkResponse(response);
@@ -41,7 +42,7 @@ exports.handleCacheResponse = function(response, options, callback) {
     networkMap.delete(options.url);
     return;
   }
-  if (!options.dataType) {
+  if (options.dataType.toLowerCase() === "none") {
     cacheMap.set(options.url, true);
     if (options.handleCachedResponse instanceof Function)
       options.handleCachedResponse(response);
@@ -74,17 +75,20 @@ function handleCacheResponseData(response, options, callback) {
 }
 
 function parseResponseData(response, options) {
-  switch (options.dataType) {
+  switch (options.dataType.toLowerCase()) {
     case "json":
       return response.json();
     case "blob":
       return response.blob();
-    case "arrayBuffer":
+    case "arraybuffer":
       return response.arrayBuffer();
-    case "formData":
+    case "formdata":
       return response.formData();
     case "text":
       return response.text();
+    case "auto":
+      options.dataType = resolveDataType(response);
+      return parseResponseData(response, options);
     default:
       return Promise.resolve(response);
   }

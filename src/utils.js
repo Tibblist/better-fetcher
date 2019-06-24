@@ -18,6 +18,13 @@ exports.prepareData = function(
   return options;
 };
 
+exports.mergeObjects = function(obj1, obj2) {
+  var combinedObj = {};
+  Object.keys(obj1).forEach(key => (combinedObj[key] = obj1[key]));
+  Object.keys(obj2).forEach(key => (combinedObj[key] = obj2[key]));
+  return combinedObj;
+};
+
 exports.checkDefaults = function(
   options,
   type,
@@ -89,7 +96,8 @@ exports.checkValidType = function(type) {
     type !== "blob" &&
     type !== "formData" &&
     type !== "json" &&
-    type !== "text"
+    type !== "text" &&
+    type !== "auto"
   )
     return false;
   else return true;
@@ -117,13 +125,33 @@ exports.timeoutPromise = function(ms, promise) {
   });
 };
 
+exports.resolveDataType = function(response) {
+  var type = response.headers.get("content-type");
+  switch (type) {
+    case "application/json":
+      return "json";
+    case "text/html":
+      return "text";
+    case "text/plain":
+      return "text";
+    case "text/javascript":
+      return "text";
+    case "multipart/form-data":
+      return "formData";
+    default:
+      if (!type || !(type instanceof String)) {
+        return "none";
+      }
+      if (
+        type.includes("image") ||
+        type.includes("audio") ||
+        type.includes("video")
+      ) {
+        return "blob";
+      }
+  }
+};
+
 function isObject(obj) {
   return obj === Object(obj);
 }
-
-/*exports.checkDefaults = checkDefaults;
-exports.timeoutPromise = timeoutPromise;
-exports.checkIfValidCredentials = checkIfValidCredentials;
-exports.checkValidType = checkValidType;
-exports.createUrl = createUrl;
-exports.prepareData = prepareData;*/
