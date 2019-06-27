@@ -32,6 +32,9 @@ exports.handleNetworkResponse = function(response, options, callback) {
     data
   ) {
     setNetworkMap(options.url);
+    if (options.setLocalData instanceof Function) {
+      options.setLocalData(response, data);
+    }
     Promise.resolve(data);
   });
 };
@@ -60,6 +63,7 @@ exports.handleCacheResponse = function(response, options, callback) {
 function handleNetworkResponseData(response, options, callback) {
   parseResponseData(response, options).then(function(data) {
     networkMap.set(options.url, true);
+    if (options.setLocalData instanceof Function) options.setLocalData(data);
     if (options.handleNetworkResponse instanceof Function)
       options.handleNetworkResponse(data);
     else callback(data); ///Implement object comparison?
