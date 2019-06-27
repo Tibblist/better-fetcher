@@ -91,7 +91,7 @@ exports.get = function(url, options = defaultOptions, callback) {
 
   // fetch cached data
   if (options.useLocalData instanceof Function)
-    callback(options.useLocalData(new Request(url, options.init)));
+    callback(options.getLocalData(new Request(url, options.init)));
   else if (options.useCache)
     checkCaches(url, options, callback).catch(function() {
       //Don't throw error on cache miss since this is expected behavior
