@@ -36,7 +36,7 @@ Getting a simple json object from the server:
 
 ```js
   betterFetcher.get("MY URL")
- .then(response => response.json())
+ // Only need this if the response headers don't specify a dataType .then(response => response.json())
  .then(function(data) {console.log(data)});
  .catch(function(error) {console.log(error)}); //In the case of error sending request or returning a 4xx/5xx
 ```
@@ -44,17 +44,17 @@ Getting a simple json object from the server:
 Getting a simple json object from the server, with default dataType set to make it more like axios/superagent.
 
 ```js
-    betterFetcher.setDefaultDataType("json");
+    betterFetcher.setDefaultDataType("json"); //Attempts to parse all responses into json regardless of response headers
     betterFetcher.get("MY URL")
     	.then(function(data) {console.log(data)});
     	.catch(function(error) {console.log(error)}); //In the case of error sending request or returning a 4xx/5xx
     //Or you can do it on a per call basis
-    betterFetcher.get("MY URL", {dataType: "json"})
+    betterFetcher.get("MY URL", {dataType: "json"}) //Parses response into json regardless of response headers
 	.then(function(data) {console.log(data)});
 	.catch(function(error) {console.log(error)});
 ```
 
-Getting a simple json object from server, but displaying cached data first then net{}work data once it is received:
+Getting a simple json object from server, but displaying cached data first then network data once it is received:
 
 ```js
 //Using promises
