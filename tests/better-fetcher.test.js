@@ -41,6 +41,7 @@ describe("Testing get()", () => {
     var data = await page.evaluate(async () => {
       await fetchAndCache("https://jsonplaceholder.typicode.com/todos/1");
       responses = [];
+      debugger;
       await betterFetcher.get(
         "https://jsonplaceholder.typicode.com/todos/1",
         { useCache: true },

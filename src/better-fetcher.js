@@ -81,13 +81,21 @@ exports.get = function(url, options = defaultOptions, callback) {
   options.url = url;
 
   // fetch fresh data
-  var networkCall = timeoutPromise(options.timeout, fetch(url, options.init))
-    .then(function(response) {
-      return handleResponse(response, options.validator);
-    })
-    .then(function(response) {
-      return handleNetworkResponse(response, options, callback);
+  var networkCall = null;
+  if (!options.jsonp) {
+    networkCall = timeoutPromise(options.timeout, fetch(url, options.init))
+      .then(function(response) {
+        return handleResponse(response, options.validator);
+      })
+      .then(function(response) {
+        return handleNetworkResponse(response, options, callback);
+      });
+  } else {
+    networkCall = jsonp(url, options.timeout).then(function(data) {
+      if (options.callback instanceof Function) callback(data);
+      return Promise.resolve(data);
     });
+  }
 
   // fetch cached data
   if (options.useLocalData instanceof Function)
@@ -175,4 +183,27 @@ function verifyOptions(options) {
     throw new Error("Attempting to set invalid credential policy");
   if (options.validator && !(options.validator instanceof Function))
     throw new Error("Validator must be a function");
+}
+
+function jsonp(url, timeout) {
+  return new Promise(function(resolve, reject) {
+    let script = document.createElement("script");
+    const name = "_jsonp_" + Math.round(100000 * Math.random());
+    //url formatting
+    if (url.match(/\?/)) url += "&callback=" + name;
+    else url += "?callback=" + name;
+    script.src = url;
+
+    window[name] = function(data) {
+      resolve(data);
+      document.body.removeChild(script);
+      delete window[name];
+    };
+    document.body.appendChild(script);
+    setTimeout(() => {
+      reject(new Error("Timeout on jsonp request"));
+      document.body.removeChild(script);
+      delete window[name];
+    }, timeout);
+  });
 }
