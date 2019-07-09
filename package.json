@@ -1,6 +1,6 @@
 {
   "name": "better-fetcher",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "A library to extend fetch in a similar manner to existing libraries for xhr requests. Including some features exclusive to using fetch.",
   "main": "lib/betterFetcher.min.js",
   "unpkg": "lib/betterFetcher.min.js",
