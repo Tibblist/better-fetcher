@@ -4,7 +4,7 @@ module.exports = {
     port: 4444
   },
   launch: {
-    headless: false,
+    headless: true,
     devtools: true,
     //slowMo: 1000,
     timeout: 30000
