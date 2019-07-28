@@ -127,28 +127,20 @@ exports.timeoutPromise = function(ms, promise) {
 
 exports.resolveDataType = function(response) {
   var type = response.headers.get("content-type");
-  switch (type) {
-    case "application/json":
-      return "json";
-    case "text/html":
-      return "text";
-    case "text/plain":
-      return "text";
-    case "text/javascript":
-      return "text";
-    case "multipart/form-data":
-      return "formData";
-    default:
-      if (!type || !(type instanceof String)) {
-        return "none";
-      }
-      if (
-        type.includes("image") ||
-        type.includes("audio") ||
-        type.includes("video")
-      ) {
-        return "blob";
-      }
+  if (!type || !(type instanceof String)) {
+    return "none";
+  }
+  if (type.includes("application/json")) return "json";
+  if (type.includes("text/html")) return "text";
+  if (type.includes("text/plain")) return "text";
+  if (type.includes("text/javascript")) return "text";
+  if (type.includes("multipart/form-data")) return "formData";
+  if (
+    type.includes("image") ||
+    type.includes("audio") ||
+    type.includes("video")
+  ) {
+    return "blob";
   }
 };
 

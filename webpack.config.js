@@ -1,15 +1,3 @@
-/*module.exports = {
-	entry: './src/better-fetcher.js',
-	output: {
-	  filename: 'better-fetcher.min.js',
-	  library: 'betterFetcher'
-	},
-	mode: 'development'
-	}
-*/
-
-var webpack = require("webpack");
-var path = require("path");
 var libraryName = "betterFetcher";
 var outputFile = libraryName + ".js";
 
