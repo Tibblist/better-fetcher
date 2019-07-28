@@ -141,10 +141,8 @@ function timeoutFetch(url, options) {
   url = createUrl(url, options);
   return timeoutPromise(options.timeout, fetch(url, options.init)).then(
     function(response) {
-      if (!response.ok) {
-        throw response;
-      } else {
-        return response;
+      if (response.ok) {
+        return handleNetworkResponse(response, options);
       }
     }
   );
