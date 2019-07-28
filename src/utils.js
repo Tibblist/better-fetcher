@@ -126,7 +126,7 @@ exports.timeoutPromise = function(ms, promise) {
 };
 
 exports.resolveDataType = function(response) {
-  var type = response.headers.get("content-type");
+  var type = response.headers.get("Content-Type");
   if (!type || !(type instanceof String)) {
     return "none";
   }
